@@ -4,7 +4,7 @@ Welcome to TikTok All Liked Videos Remover! This Chrome extension allows you to 
 
 ## Installation
 
-You can install the extension from the Chrome Web Store by following this link: TikTok All Liked Videos Remover - Chrome Web Store
+You can install the extension from the Chrome Web Store by following this link: [TikTok All Liked Videos Remover - Chrome Web Store](https://chrome.google.com/webstore/detail/tiktok-all-liked-videos-r/eafmacjdgennnmhagdkdckgjokmnllci/)
 
 Alternatively, you can also install the extension manually by following these steps:
 
