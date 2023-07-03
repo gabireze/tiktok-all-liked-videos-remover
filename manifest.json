@@ -7,6 +7,7 @@
     "email": "contato@gabireze.com.br",
     "url": "https://gabireze.com.br/"
   },
+  "homepage_url": "https://chrome.google.com/webstore/detail/tiktok-all-liked-videos-r/eafmacjdgennnmhagdkdckgjokmnllci/",
   "permissions": ["scripting"],
   "host_permissions": ["https://*.tiktok.com/*"],
   "background": {
