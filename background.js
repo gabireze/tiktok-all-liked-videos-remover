@@ -32,7 +32,7 @@ const startFunction = async () => {
 
   const clickLikedVideo = async () => {
     try {
-      const firstLikedVideo = document.querySelectorAll(".tiktok-1s72ajp-DivWrapper")[0];
+      const firstLikedVideo = document.querySelectorAll(".tiktok-c83ctf-DivWrapper")[0];
       if (firstLikedVideo) {
         firstLikedVideo.querySelector("a").click();
         console.log("First liked video opened");
@@ -55,14 +55,14 @@ const startFunction = async () => {
           console.log("Liked removed");
         } else {
           clearInterval(interval);
-          stopScript("No more favorites");
+          stopScript("No more liked videos");
         }
         if (nextVideoButton && !nextVideoButton.disabled) {
           nextVideoButton.click();
           console.log("Next liked clicked");
         } else {
           clearInterval(interval);
-          stopScript("No more favorites");
+          stopScript("No more liked videos");
         }
       }, 2000);
     } catch (error) {
