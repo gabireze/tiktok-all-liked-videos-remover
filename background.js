@@ -1,87 +1,120 @@
 chrome.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
-  if (request.action === "startRemoval") {
+  if (request.action === "removeFavoriteVideos") {
     try {
       const tabs = await chrome.tabs.query({ active: true });
       await chrome.scripting.executeScript({
         target: { tabId: tabs[0].id },
-        func: startFunction,
+        func: initiateLikedVideosRemoval,
       });
     } catch (error) {
-      console.log("Error starting removal:", error);
+      console.log({ message: "Error starting removal process.", error: error });
     }
   }
 });
 
-const startFunction = async () => {
+const initiateLikedVideosRemoval = async () => {
   const clickLikedTab = async () => {
     try {
-      const likedTabButton = document.querySelector(".tiktok-ixtc0z-PLike") ?? document.querySelector(".tiktok-1uazqi2-PLike");
-      if (likedTabButton) {
-        if (likedTabButton.className.includes("tiktok-1uazqi2-PLike")) {
-          likedTabButton.click();
-          console.log("Liked tab opened");
-          await sleep(5000);
+      let elements = document.querySelectorAll('[class^="tiktok"]');
+      let elementsArray = Array.from(elements);
+      let divVideoFeedTab = elementsArray.find((element) => {
+        let className = String(element.className);
+        if (className.includes("DivVideoFeedTab")) {
+          return element;
         }
+      });
+      if (divVideoFeedTab) {
+        let likedTab = divVideoFeedTab.querySelector("p:nth-of-type(3)");
+        if (!likedTab) {
+          stopScript("'Liked' tab not found on the page");
+          return;
+        }
+        likedTab.click();
+        console.log("Successfully opened the 'Liked' tab.");
+        await sleep(5000);
       } else {
-        console.log("Liked tab not found");
+        stopScript("The 'Liked' tab container not found on the page");
+        return;
       }
     } catch (error) {
-      console.log("Error clicking liked tab:", error);
+      stopScript("Error finding or clicking the 'Liked' tab", error);
     }
   };
 
   const clickLikedVideo = async () => {
     try {
-      const firstLikedVideo = document.querySelectorAll(".tiktok-c83ctf-DivWrapper")[0];
-      if (firstLikedVideo) {
-        firstLikedVideo.querySelector("a").click();
-        console.log("First liked video opened");
+      let elements = document.querySelectorAll('[class^="tiktok"]');
+      let elementsArray = Array.from(elements);
+      let firstVideo = elementsArray.find((element) => {
+        let className = String(element.className);
+        if (className.includes("DivPlayerContainer")) {
+          return element;
+        }
+      });
+      if (firstVideo) {
+        firstVideo.click();
+        console.log("Successfully opened the first liked video.");
+        await sleep(5000);
       } else {
-        console.log("You have no favorites");
+        stopScript("No liked videos found. Your liked videos list is empty");
+        return;
       }
     } catch (error) {
-      console.log("Error clicking liked video:", error);
+      stopScript("Error finding or clicking the first liked video", error);
     }
   };
 
-  const clickNextFavoriteAndRemove = async () => {
+  const clickNextLikedVideoAndRemove = async () => {
     try {
+      let elements = document.querySelectorAll('[class^="tiktok"]');
+      let elementsArray = Array.from(elements);
+      let nextVideoButton = elementsArray.filter((element) => {
+        let className = String(element.className);
+        if (className.includes("ButtonBasicButtonContainer-StyledVideoSwitch")) {
+          return element;
+        }
+      })[1];
+      let likeButton = elementsArray
+        .find((element) => {
+          let className = String(element.className);
+          if (className.includes("DivFlexCenterRow-StyledWrapper")) {
+            return element;
+          }
+        })
+        .getElementsByTagName("button")[0];
       const interval = setInterval(() => {
-        const nextVideoButton = document.querySelector(".tiktok-1s9jpf8-ButtonBasicButtonContainer-StyledVideoSwitch");
-        const actionButtons = document.querySelector(".tiktok-1d39a26-DivFlexCenterRow");
-        if (actionButtons) {
-          const likeButton = actionButtons.getElementsByTagName("button")[0];
-          likeButton.click();
-          console.log("Liked removed");
-        } else {
+        if (!likeButton) {
           clearInterval(interval);
-          stopScript("No more liked videos");
+          stopScript("Could not find the like button");
+          return;
         }
-        if (nextVideoButton && !nextVideoButton.disabled) {
-          nextVideoButton.click();
-          console.log("Next liked clicked");
-        } else {
+        likeButton.click();
+        console.log("Successfully removed the like from the current video.");
+        if (!nextVideoButton || nextVideoButton.disabled) {
           clearInterval(interval);
-          stopScript("No more liked videos");
+          stopScript("Script completed: All actions executed successfully");
+          return;
         }
+        nextVideoButton.click();
+        console.log("Clicked the next liked video.");
       }, 2000);
     } catch (error) {
-      console.log("Error clicking next video button", error);
+      stopScript("Could not click next liked video", error);
     }
   };
 
-  const stopScript = (message) => {
-    console.log(`${message}, stopping script`);
+  const stopScript = (message, error = "") => {
+    error ? console.log({ message: `${message}. Stopping script...`, error: error }) : console.log(`${message}. Stopping script...`);
   };
 
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   try {
-    console.log("Start function");
+    console.log("Script started: Initiating actions...");
     await clickLikedTab();
     await clickLikedVideo();
-    await clickNextFavoriteAndRemove();
+    await clickNextLikedVideoAndRemove();
   } catch (error) {
-    console.log("Error in start function:", error);
+    stopScript("Error in script", error);
   }
 };
