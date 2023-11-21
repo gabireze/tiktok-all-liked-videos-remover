@@ -1,5 +1,5 @@
 chrome.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
-  if (request.action === "removeFavoriteVideos") {
+  if (request.action === "removeLikedVideos") {
     try {
       const tabs = await chrome.tabs.query({ active: true });
       await chrome.scripting.executeScript({
@@ -15,27 +15,14 @@ chrome.runtime.onMessage.addListener(async function (request, sender, sendRespon
 const initiateLikedVideosRemoval = async () => {
   const clickLikedTab = async () => {
     try {
-      let elements = document.querySelectorAll('[class^="tiktok"]');
-      let elementsArray = Array.from(elements);
-      let divVideoFeedTab = elementsArray.find((element) => {
-        let className = String(element.className);
-        if (className.includes("DivVideoFeedTab")) {
-          return element;
-        }
-      });
-      if (divVideoFeedTab) {
-        let likedTab = divVideoFeedTab.querySelector("p:nth-of-type(3)");
-        if (!likedTab) {
-          stopScript("'Liked' tab not found on the page");
-          return;
-        }
-        likedTab.click();
-        console.log("Successfully opened the 'Liked' tab.");
-        await sleep(5000);
-      } else {
-        stopScript("The 'Liked' tab container not found on the page");
+      const likedTab = document.querySelector('[data-e2e="liked-tab"]');
+      if (!likedTab) {
+        stopScript("The 'Liked' tab not found on the page");
         return;
       }
+      likedTab.click();
+      console.log("Successfully opened the 'Liked' tab.");
+      await sleep(5000);
     } catch (error) {
       stopScript("Error finding or clicking the 'Liked' tab", error);
     }
@@ -43,92 +30,71 @@ const initiateLikedVideosRemoval = async () => {
 
   const clickLikedVideo = async () => {
     try {
-      let elements = document.querySelectorAll('[class^="tiktok"]');
-      let elementsArray = Array.from(elements);
-      let firstVideo = elementsArray.find((element) => {
-        let className = String(element.className);
-        if (className.includes("DivPlayerContainer")) {
-          return element;
-        }
-      });
-      if (firstVideo) {
-        firstVideo.click();
-        console.log("Successfully opened the first liked video.");
-        await sleep(5000);
-      } else {
+      const firstVideo = document.querySelector('[class*="DivPlayerContainer"]');
+      if (!firstVideo) {
         stopScript("No liked videos found. Your liked videos list is empty");
         return;
       }
+      firstVideo.click();
+      console.log("Successfully opened the first liked video.");
+      await sleep(5000);
     } catch (error) {
-      stopScript("Error finding or clicking the first liked video", error);
+      stopScript(`Error finding or clicking the first liked video: ${error.message}`, error);
     }
   };
 
   const clickNextLikedVideoAndRemove = async () => {
     try {
-      let elements = document.querySelectorAll('[class^="tiktok"]');
-      let elementsArray = Array.from(elements);
-      let nextVideoButton = elementsArray.filter((element) => {
-        let className = String(element.className);
-        if (className.includes("ButtonBasicButtonContainer-StyledVideoSwitch")) {
-          return element;
-        }
-      })[1];
-      let likeButton = elementsArray
-        .find((element) => {
-          let className = String(element.className);
-          if (className.includes("DivFlexCenterRow-StyledWrapper")) {
-            return element;
-          }
-        })
-        .getElementsByTagName("button")[0];
-      const interval = setInterval(() => {
+      const interval = setInterval(async () => {
+        const nextVideoButton = document.querySelector('[data-e2e="arrow-right"]');
+        const likeButton = document.querySelector('[data-e2e="browse-like-icon"]');
+
         if (!likeButton) {
           clearInterval(interval);
           stopScript("Could not find the like button");
           return;
         }
+
         likeButton.click();
-        console.log("Successfully removed the like from the current video.");
+        console.log("Successfully removed the liked from the current video.");
+
         if (!nextVideoButton || nextVideoButton.disabled) {
           clearInterval(interval);
           closeVideo();
           return;
         }
+
         nextVideoButton.click();
         console.log("Clicked the next liked video.");
       }, 2000);
     } catch (error) {
-      stopScript("Could not click next liked video", error);
+      clearInterval(interval);
+      stopScript("Error occurred in the liked video removal process", error);
     }
   };
 
   const closeVideo = async () => {
     try {
-      let elements = document.querySelectorAll('[class^="tiktok"]');
-      let elementsArray = Array.from(elements);
-      let closeVideoButton = elementsArray.find((element) => {
-        let className = String(element.className);
-        if (className.includes("ButtonBasicButtonContainer-StyledCloseIconContainer")) {
-          return element;
-        }
-      });
+      const closeVideoButton = document.querySelector('[data-e2e="browse-close"]');
       if (closeVideoButton) {
         closeVideoButton.click();
         console.log("Successfully closed the video.");
         stopScript("Script completed: All actions executed successfully");
-        return;
       } else {
         stopScript("Could not find the close video button");
-        return;
       }
     } catch (error) {
-      stopScript("Could not close video", error);
+      stopScript("Error occurred while trying to close the video", error);
     }
   };
 
   const stopScript = (message, error = "") => {
-    error ? console.log({ message: `${message}. Stopping script...`, error: error }) : console.log(`${message}. Stopping script...`);
+    let logMessage = `${message}. Stopping script...`;
+    if (error) {
+      console.log({ message: logMessage, error: error });
+    } else {
+      console.log(logMessage);
+    }
   };
 
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
