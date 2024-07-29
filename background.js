@@ -1,7 +1,14 @@
-chrome.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(async function (
+  request,
+  sender,
+  sendResponse
+) {
   if (request.action === "removeLikedVideos") {
     try {
-      const tabs = await chrome.tabs.query({ active: true });
+      const tabs = await chrome.tabs.query({
+        active: true,
+        currentWindow: true,
+      });
       await chrome.scripting.executeScript({
         target: { tabId: tabs[0].id },
         func: initiateLikedVideosRemoval,
@@ -30,7 +37,9 @@ const initiateLikedVideosRemoval = async () => {
 
   const clickLikedVideo = async () => {
     try {
-      const firstVideo = document.querySelector('[class*="DivPlayerContainer"]');
+      const firstVideo = document.querySelector(
+        '[class*="DivPlayerContainer"]'
+      );
       if (!firstVideo) {
         stopScript("No liked videos found. Your liked videos list is empty");
         return;
@@ -39,15 +48,22 @@ const initiateLikedVideosRemoval = async () => {
       console.log("Successfully opened the first liked video.");
       await sleep(5000);
     } catch (error) {
-      stopScript(`Error finding or clicking the first liked video: ${error.message}`, error);
+      stopScript(
+        `Error finding or clicking the first liked video: ${error.message}`,
+        error
+      );
     }
   };
 
   const clickNextLikedVideoAndRemove = async () => {
     try {
       const interval = setInterval(async () => {
-        const nextVideoButton = document.querySelector('[data-e2e="arrow-right"]');
-        const likeButton = document.querySelector('[data-e2e="browse-like-icon"]');
+        const nextVideoButton = document.querySelector(
+          '[data-e2e="arrow-right"]'
+        );
+        const likeButton = document.querySelector(
+          '[data-e2e="browse-like-icon"]'
+        );
 
         if (!likeButton) {
           clearInterval(interval);
@@ -75,7 +91,9 @@ const initiateLikedVideosRemoval = async () => {
 
   const closeVideo = async () => {
     try {
-      const closeVideoButton = document.querySelector('[data-e2e="browse-close"]');
+      const closeVideoButton = document.querySelector(
+        '[data-e2e="browse-close"]'
+      );
       if (closeVideoButton) {
         closeVideoButton.click();
         console.log("Successfully closed the video.");
