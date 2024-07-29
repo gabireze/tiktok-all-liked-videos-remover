@@ -1,7 +1,7 @@
 {
   "name": "TikTok All Liked Videos Remover",
   "description": "A Chrome extension to remove all liked videos on TikTok.",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "author": {
     "name": "Gabriel de Rezende Gonçalves",
     "email": "contato@gabireze.com.br",
@@ -29,7 +29,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["script.js", "styles.css"],
+      "resources": ["styles.css"],
       "matches": ["https://*.tiktok.com/*"]
     }
   ],
