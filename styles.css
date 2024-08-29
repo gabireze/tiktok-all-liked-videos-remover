@@ -55,12 +55,14 @@ header {
 
 .menu .dropdown-menu {
   background-color: #fff;
-  padding: 8px 16px;
-  margin-left: -56px;
+  margin-left: -170px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   position: absolute;
   top: 40px;
   display: none;
+  flex-direction: column;
+  width: 200px;
+  padding: 0;
 }
 
 .menu:hover .dropdown-menu {
@@ -70,7 +72,13 @@ header {
 .menu .dropdown-menu a {
   color: #333;
   text-decoration: none;
-  padding: 5px 0;
+  padding: 10px 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.menu .dropdown-menu a:hover {
+  background-color: #f0f0f0;
 }
 
 .container {
