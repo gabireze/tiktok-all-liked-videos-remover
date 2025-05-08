@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="UTF-8" />
     <title>TikTok All Liked Videos Remover</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
@@ -11,55 +13,69 @@
       href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
     />
     <link rel="stylesheet" href="styles.css" />
-    <script src="popup.js"></script>
   </head>
   <body>
     <header>
       <a
         class="logo"
-        href="https://chrome.google.com/webstore/detail/tiktok-all-liked-videos-r/eafmacjdgennnmhagdkdckgjokmnllci/"
+        href="https://chrome.google.com/webstore/detail/tiktok-all-liked-videos-r/eafmacjdgennnmhagdkdckgjokmnllci"
         target="_blank"
       >
-        <img src="icon.png" alt="Logo of TikTok All Liked Videos Remover" />
-        <h1 class="title">TikTok All Liked Videos Remover</h1>
+        <img src="icon.png" alt="TikTok Remover Logo" />
+        <h1 class="title">TikTok Liked Remover</h1>
       </a>
-      <div class="menu">
-        <div class="material-icons">help_outline</div>
+      <div class="menu-wrapper" id="menuWrapper">
+        <div class="menu" title="More tools">
+          <div class="material-icons">help_outline</div>
+        </div>
         <div class="dropdown-menu">
           <a
-            href="https://chromewebstore.google.com/detail/tiktok-all-favorite-video/cbjkccccmffolddklbkedlndlfokcpbn"
+            href="https://chrome.google.com/webstore/detail/tiktok-all-favorite-video/cbjkccccmffolddklbkedlndlfokcpbn"
             target="_blank"
-            >TikTok All Favorite Videos Remover</a
+            >Remove All Favorite Videos</a
           >
           <a
-            href="https://chromewebstore.google.com/detail/tiktok-all-reposted-videos-remover/amgpfdpibiacligkkkbeonfhmonkgjhg"
+            href="https://chrome.google.com/webstore/detail/tiktok-all-reposted-videos-remover/amgpfdpibiacligkkkbeonfhmonkgjhg"
             target="_blank"
-            >TikTok All Reposted Videos Remover</a
+            >Remove All Reposted Videos</a
           >
           <a
             href="https://github.com/gabireze/tiktok-all-liked-videos-remover"
             target="_blank"
-            >GitHub</a
+            >GitHub Repository</a
           >
         </div>
       </div>
     </header>
     <div class="container">
-      <p class="instructions">
-        Welcome to the <strong>TikTok All Liked Videos Remover</strong>. Before
-        getting started, please make sure you are <strong>logged in</strong> to
-        your TikTok account and on <strong>your profile page</strong>.
+      <p class="info-box info-login">
+        <strong>Before you start:</strong> Make sure you are
+        <strong>logged in</strong> to your account at
+        <a href="https://tiktok.com" target="_blank">tiktok.com</a>.
       </p>
-      <p class="warning">
-        <strong>Warning: </strong
-        ><span
-          >Keep the tab open until the process is done. Even if in the
-          background or minimized. If you close the tab, the process will stop.
-          If you have a lot of liked videos, it may take a while. Be patient.
-          You can check the progress in the console.</span
-        >
+      <p class="info-box info-process">
+        <strong>Step:</strong> Click the button below. A new TikTok tab will
+        open automatically and the extension will begin the removal process.
       </p>
-      <button id="startButton" class="button">Start Removal</button>
+      <button id="startButton" class="button">Start Removing Likes</button>
+      <ul class="info-list">
+        <li>Opens your TikTok profile</li>
+        <li>Goes to the "Liked" tab</li>
+        <li>Opens each liked video</li>
+        <li>Removes the like and moves to the next</li>
+        <li>Repeats until your liked videos list is empty</li>
+      </ul>
+      <p class="info-box info-warning">
+        <strong>Note:</strong> If you have many liked videos, the process may
+        take a while. TikTok may temporarily block actions if too many happen
+        quickly. If that occurs, wait <strong>about 1 hour</strong> and try
+        again.
+      </p>
+      <p class="info-box info-check">
+        <strong>Tip:</strong> When the process finishes, refresh your profile to
+        verify the videos were unliked successfully.
+      </p>
     </div>
+    <script src="popup.js"></script>
   </body>
 </html>
