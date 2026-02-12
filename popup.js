@@ -129,13 +129,10 @@ const COUNTRY_CURRENCY_MAP = {
   TK: "NZD",
 };
 
-// Função para detectar o país do usuário usando apenas recursos do navegador
 function detectUserCountry() {
   try {
-    // Método 1: Usar timezone do navegador (mais preciso)
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const timezoneCountryMap = {
-      // Americas
       "America/Sao_Paulo": "BR",
       "America/Argentina/Buenos_Aires": "AR",
       "America/Santiago": "CL",
@@ -164,8 +161,6 @@ function detectUserCountry() {
       "America/Toronto": "CA",
       "America/Vancouver": "CA",
       "America/Mexico_City": "MX",
-
-      // Europe
       "Europe/London": "GB",
       "Europe/Dublin": "IE",
       "Europe/Paris": "FR",
@@ -189,8 +184,6 @@ function detectUserCountry() {
       "Europe/Lisbon": "PT",
       "Europe/Moscow": "RU",
       "Europe/Kiev": "UA",
-
-      // Asia
       "Asia/Tokyo": "JP",
       "Asia/Seoul": "KR",
       "Asia/Shanghai": "CN",
@@ -211,15 +204,11 @@ function detectUserCountry() {
       "Asia/Tehran": "IR",
       "Asia/Baghdad": "IQ",
       "Asia/Jerusalem": "IL",
-
-      // Oceania
       "Australia/Sydney": "AU",
       "Australia/Melbourne": "AU",
       "Australia/Perth": "AU",
       "Pacific/Auckland": "NZ",
       "Pacific/Fiji": "FJ",
-
-      // Africa
       "Africa/Cairo": "EG",
       "Africa/Lagos": "NG",
       "Africa/Johannesburg": "ZA",
@@ -228,147 +217,322 @@ function detectUserCountry() {
       "Africa/Tunis": "TN",
       "Africa/Nairobi": "KE",
     };
-
-    if (timezoneCountryMap[timezone]) {
-      return timezoneCountryMap[timezone];
-    }
-  } catch (error) {
-    console.log("Erro ao detectar país via timezone:", error);
-  }
-
+    if (timezoneCountryMap[timezone]) return timezoneCountryMap[timezone];
+  } catch (e) {}
   try {
-    // Método 2: Usar o locale do navegador
     const locale = Intl.DateTimeFormat().resolvedOptions().locale;
     const localeCountryMap = {
-      "pt-BR": "BR",
-      "en-US": "US",
-      "en-GB": "GB",
-      "en-CA": "CA",
-      "en-AU": "AU",
-      "fr-FR": "FR",
-      "fr-CA": "CA",
-      "de-DE": "DE",
-      "de-AT": "AT",
-      "de-CH": "CH",
-      "es-ES": "ES",
-      "es-MX": "MX",
-      "es-AR": "AR",
-      "es-CL": "CL",
-      "es-CO": "CO",
-      "es-PE": "PE",
-      "it-IT": "IT",
-      "it-CH": "CH",
-      "ja-JP": "JP",
-      "ko-KR": "KR",
-      "zh-CN": "CN",
-      "zh-TW": "TW",
-      "zh-HK": "HK",
-      "ru-RU": "RU",
-      "pl-PL": "PL",
-      "nl-NL": "NL",
-      "sv-SE": "SE",
-      "no-NO": "NO",
-      "da-DK": "DK",
-      "fi-FI": "FI",
-      "th-TH": "TH",
-      "vi-VN": "VN",
-      "id-ID": "ID",
-      "ms-MY": "MY",
-      "hi-IN": "IN",
-      "ar-SA": "SA",
-      "ar-EG": "EG",
-      "he-IL": "IL",
-      "tr-TR": "TR",
-      "uk-UA": "UA",
-      "cs-CZ": "CZ",
-      "hu-HU": "HU",
-      "ro-RO": "RO",
-      "bg-BG": "BG",
-      "el-GR": "GR",
-      "hr-HR": "HR",
-      "sk-SK": "SK",
-      "sl-SI": "SI",
-      "et-EE": "EE",
-      "lv-LV": "LV",
-      "lt-LT": "LT",
+      "pt-BR": "BR", "en-US": "US", "en-GB": "GB", "en-CA": "CA", "en-AU": "AU",
+      "fr-FR": "FR", "fr-CA": "CA", "de-DE": "DE", "de-AT": "AT", "de-CH": "CH",
+      "es-ES": "ES", "es-MX": "MX", "es-AR": "AR", "es-CL": "CL", "es-CO": "CO", "es-PE": "PE",
+      "it-IT": "IT", "it-CH": "CH", "ja-JP": "JP", "ko-KR": "KR", "zh-CN": "CN", "zh-TW": "TW", "zh-HK": "HK",
+      "ru-RU": "RU", "pl-PL": "PL", "nl-NL": "NL", "sv-SE": "SE", "no-NO": "NO", "da-DK": "DK", "fi-FI": "FI",
+      "th-TH": "TH", "vi-VN": "VN", "id-ID": "ID", "ms-MY": "MY", "hi-IN": "IN", "ar-SA": "SA", "ar-EG": "EG",
+      "he-IL": "IL", "tr-TR": "TR", "uk-UA": "UA", "cs-CZ": "CZ", "hu-HU": "HU", "ro-RO": "RO", "bg-BG": "BG",
+      "el-GR": "GR", "hr-HR": "HR", "sk-SK": "SK", "sl-SI": "SI", "et-EE": "EE", "lv-LV": "LV", "lt-LT": "LT",
     };
-
-    if (localeCountryMap[locale]) {
-      return localeCountryMap[locale];
-    }
-  } catch (error) {
-    console.log("Erro ao detectar país via locale:", error);
-  }
-
+    if (localeCountryMap[locale]) return localeCountryMap[locale];
+  } catch (e) {}
   try {
-    // Método 3: Usar navigator.language como fallback
     const language = navigator.language || navigator.userLanguage;
     if (language.includes("-")) {
       const countryCode = language.split("-")[1].toUpperCase();
-      // Verificar se o código de país existe no nosso mapeamento
-      if (COUNTRY_CURRENCY_MAP[countryCode]) {
-        return countryCode;
-      }
+      if (COUNTRY_CURRENCY_MAP[countryCode]) return countryCode;
     }
-
-    // Mapeamento básico por idioma
     const languageCountryMap = {
-      pt: "BR",
-      en: "US",
-      fr: "FR",
-      de: "DE",
-      es: "ES",
-      it: "IT",
-      ja: "JP",
-      ko: "KR",
-      zh: "CN",
-      ru: "RU",
-      ar: "SA",
-      hi: "IN",
-      th: "TH",
-      vi: "VN",
-      id: "ID",
-      ms: "MY",
-      tr: "TR",
-      pl: "PL",
-      nl: "NL",
-      sv: "SE",
-      no: "NO",
-      da: "DK",
-      fi: "FI",
+      pt: "BR", en: "US", fr: "FR", de: "DE", es: "ES", it: "IT", ja: "JP", ko: "KR", zh: "CN", ru: "RU",
+      ar: "SA", hi: "IN", th: "TH", vi: "VN", id: "ID", ms: "MY", tr: "TR", pl: "PL", nl: "NL", sv: "SE", no: "NO", da: "DK", fi: "FI",
     };
-
     const languageCode = language.split("-")[0].toLowerCase();
-    if (languageCountryMap[languageCode]) {
-      return languageCountryMap[languageCode];
-    }
-  } catch (error) {
-    console.log("Erro ao detectar país via language:", error);
-  }
-
-  // Fallback final: US como padrão
+    if (languageCountryMap[languageCode]) return languageCountryMap[languageCode];
+  } catch (e) {}
   return "US";
 }
 
-// Função para abrir doação do PayPal
 function openDonation() {
   const countryCode = detectUserCountry();
   const currencyCode = COUNTRY_CURRENCY_MAP[countryCode] || "USD";
+  chrome.tabs.create({ url: `https://www.paypal.com/donate/?cmd=_donations&business=S34UMJ23659VY&currency_code=${currencyCode}` });
+}
 
-  const donationUrl = `https://www.paypal.com/donate/?cmd=_donations&business=S34UMJ23659VY&currency_code=${currencyCode}`;
+async function checkTiktokLogin() {
+  try {
+    const cookies = await chrome.cookies.getAll({ domain: "tiktok.com" });
+    const hasMultiSids = cookies.some((c) => c.name === "multi_sids");
+    const hasLivingUserId = cookies.some((c) => c.name === "living_user_id");
+    return !!(hasMultiSids || hasLivingUserId);
+  } catch (e) {
+    return false;
+  }
+}
 
-  chrome.tabs.create({ url: donationUrl });
+const I18N_KEYS_PANEL = [
+  "panelTitle", "statusPreparing", "statusPaused", "statusResuming", "btnPause", "btnResume",
+  "btnDownloadReport", "statusWaiting", "statusListing", "statusPageRemoving", "statusDone",
+  "statusNone", "statusErrorNoAccount", "statusErrorRedirectedForyou", "statusErrorRemove", "panelClose", "statsPages",
+  "statsRemoved", "statsListed", "statsFailed", "statusStoppedFailures", "statusBetweenPages"
+];
+
+function applyI18n() {
+  const i18n = typeof chrome !== "undefined" && chrome.i18n ? chrome.i18n : null;
+  const getMsg = (key) => (i18n ? i18n.getMessage(key) : "") || "";
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    const key = el.getAttribute("data-i18n");
+    const msg = getMsg(key);
+    if (msg) el.innerHTML = msg;
+  });
+  document.querySelectorAll("[data-i18n-title]").forEach((el) => {
+    const key = el.getAttribute("data-i18n-title");
+    const msg = getMsg(key);
+    if (msg) el.title = msg;
+  });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+    const key = el.getAttribute("data-i18n-placeholder");
+    const msg = getMsg(key);
+    if (msg) el.placeholder = msg;
+  });
+  document.querySelectorAll("option[data-i18n]").forEach((el) => {
+    const key = el.getAttribute("data-i18n");
+    const msg = getMsg(key);
+    if (msg) el.textContent = msg;
+  });
+}
+
+function getPanelI18n() {
+  const i18n = typeof chrome !== "undefined" && chrome.i18n ? chrome.i18n : null;
+  const o = {};
+  I18N_KEYS_PANEL.forEach((key) => { o[key] = (i18n && i18n.getMessage(key)) || key; });
+  return o;
+}
+
+function getConfig() {
+  const useKeywords = document.getElementById("useKeywords").checked;
+  const keywordsFilter = useKeywords ? (document.getElementById("keywordsInput").value || "").trim() : "";
+  const intervalMode = document.getElementById("intervalMode").value;
+  let intervalMin = Math.max(1, Math.min(10, parseInt(document.getElementById("intervalMin").value, 10) || 1));
+  let intervalMax = Math.max(1, Math.min(10, parseInt(document.getElementById("intervalMax").value, 10) || 3));
+  if (intervalMin > intervalMax) intervalMax = intervalMin;
+  const intervalSetStr = (document.getElementById("intervalSet").value || "1,3,5")
+    .split(",").map((s) => parseInt(s.trim(), 10)).filter((n) => !isNaN(n) && n >= 0);
+  const requestIntervalSet = intervalSetStr.length ? intervalSetStr : [1, 3, 5];
+  const reportFormat = document.getElementById("reportFormat").value;
+  const pagePause = Math.max(0, Math.min(120, parseInt(document.getElementById("pagePause").value, 10) || 5));
+  return {
+    keywordsFilter,
+    requestIntervalMode: intervalMode,
+    requestIntervalRange: { min: intervalMin, max: intervalMax },
+    requestIntervalSet,
+    exportFileType: reportFormat,
+    pagePauseSeconds: pagePause,
+    i18n: getPanelI18n(),
+  };
+}
+
+function getStorage() {
+  return (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) ? chrome.storage.local : null;
+}
+
+function loadSavedConfig() {
+  const storage = getStorage();
+  if (!storage) return;
+  storage.get("tlvrConfig", (data) => {
+    const c = data && data.tlvrConfig;
+    if (!c) return;
+    try {
+      if (c.useKeywords != null) document.getElementById("useKeywords").checked = !!c.useKeywords;
+      const kw = document.getElementById("keywordsInput");
+      if (kw) {
+        if (c.keywordsFilter) kw.value = c.keywordsFilter;
+        kw.disabled = !document.getElementById("useKeywords").checked;
+      }
+      if (c.requestIntervalMode) document.getElementById("intervalMode").value = c.requestIntervalMode;
+      const isRange = document.getElementById("intervalMode").value === "range";
+      const rangeGrp = document.getElementById("intervalRangeGroup");
+      const setGrp = document.getElementById("intervalSetGroup");
+      if (rangeGrp) rangeGrp.style.display = isRange ? "flex" : "none";
+      if (setGrp) {
+        setGrp.style.display = isRange ? "none" : "flex";
+        if (isRange) setGrp.setAttribute("hidden", "");
+        else setGrp.removeAttribute("hidden");
+      }
+      if (c.requestIntervalRange) {
+        const minEl = document.getElementById("intervalMin");
+        const maxEl = document.getElementById("intervalMax");
+        const minVal = Math.max(1, Math.min(10, c.requestIntervalRange.min ?? 1));
+        const maxVal = Math.max(1, Math.min(10, c.requestIntervalRange.max ?? 3));
+        if (minEl) minEl.value = minVal;
+        if (maxEl) maxEl.value = Math.max(minVal, maxVal);
+        const fillEl = document.getElementById("intervalRangeFill");
+        const displayEl = document.getElementById("intervalRangeDisplay");
+        if (minEl && maxEl) {
+          const min = parseInt(minEl.value, 10) || 1;
+          const max = parseInt(maxEl.value, 10) || 3;
+          const range = 10 - 1;
+          const pctMin = ((min - 1) / range) * 100;
+          const pctWidth = ((max - min) / range) * 100;
+          if (fillEl) { fillEl.style.left = pctMin + "%"; fillEl.style.width = pctWidth + "%"; }
+          if (displayEl) displayEl.textContent = min + "s – " + max + "s";
+        }
+      }
+      if (c.requestIntervalSet && c.requestIntervalSet.length) {
+        const setEl = document.getElementById("intervalSet");
+        if (setEl) setEl.value = c.requestIntervalSet.join(", ");
+      }
+      if (c.exportFileType) document.getElementById("reportFormat").value = c.exportFileType;
+      if (c.pagePauseSeconds != null) {
+        const pp = document.getElementById("pagePause");
+        if (pp) pp.value = Math.max(0, c.pagePauseSeconds);
+      }
+    } catch (err) {
+      console.warn("TikTok Liked Videos Remover: loadSavedConfig", err);
+    }
+  });
+}
+
+function saveConfig(config) {
+  const storage = getStorage();
+  if (!storage) return;
+  try {
+    storage.set({
+      tlvrConfig: {
+        useKeywords: !!config.keywordsFilter,
+        keywordsFilter: config.keywordsFilter,
+        requestIntervalMode: config.requestIntervalMode,
+        requestIntervalRange: config.requestIntervalRange,
+        requestIntervalSet: config.requestIntervalSet,
+        exportFileType: config.exportFileType,
+        pagePauseSeconds: config.pagePauseSeconds,
+      },
+    });
+  } catch (err) {
+    console.warn("TikTok Liked Videos Remover: saveConfig", err);
+  }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  document.getElementById("startButton").addEventListener("click", function () {
-    chrome.runtime.sendMessage({ action: "removeLikedVideos" });
+  applyI18n();
+  loadSavedConfig();
+
+  const configToggle = document.getElementById("configToggle");
+  const configBody = document.getElementById("configBody");
+  const configSection = document.querySelector(".popup-config");
+  if (configSection && configToggle && configBody) {
+    configToggle.addEventListener("click", function () {
+      const isClosed = configSection.classList.toggle("is-closed");
+      configToggle.setAttribute("aria-expanded", isClosed ? "false" : "true");
+    });
+  }
+
+  const menuBtn = document.getElementById("menuBtn");
+  const menuDropdown = document.getElementById("menuDropdown");
+  if (menuBtn && menuDropdown) {
+    menuBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      const isOpen = menuDropdown.classList.toggle("is-open");
+      menuBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      menuDropdown.setAttribute("aria-hidden", isOpen ? "false" : "true");
+    });
+    document.addEventListener("click", function () {
+      if (menuDropdown.classList.contains("is-open")) {
+        menuDropdown.classList.remove("is-open");
+        menuBtn.setAttribute("aria-expanded", "false");
+        menuDropdown.setAttribute("aria-hidden", "true");
+      }
+    });
+  }
+
+  const useKeywords = document.getElementById("useKeywords");
+  const keywordsInput = document.getElementById("keywordsInput");
+  useKeywords.addEventListener("change", function () {
+    keywordsInput.disabled = !this.checked;
   });
 
-  // Adicionar event listener para o botão de doação
-  document
-    .getElementById("donateButton")
-    .addEventListener("click", function () {
-      openDonation();
+  function updateDualRangeDisplay() {
+    const minEl = document.getElementById("intervalMin");
+    const maxEl = document.getElementById("intervalMax");
+    const fillEl = document.getElementById("intervalRangeFill");
+    const displayEl = document.getElementById("intervalRangeDisplay");
+    if (!minEl || !maxEl) return;
+    let min = Math.max(1, Math.min(10, parseInt(minEl.value, 10) || 1));
+    let max = Math.max(1, Math.min(10, parseInt(maxEl.value, 10) || 3));
+    if (min > max) max = min;
+    minEl.value = min;
+    maxEl.value = max;
+    const range = 9;
+    const pctMin = ((min - 1) / range) * 100;
+    const pctWidth = ((max - min) / range) * 100;
+    if (fillEl) { fillEl.style.left = pctMin + "%"; fillEl.style.width = pctWidth + "%"; }
+    if (displayEl) displayEl.textContent = min + "s – " + max + "s";
+  }
+
+  const intervalMinEl = document.getElementById("intervalMin");
+  const intervalMaxEl = document.getElementById("intervalMax");
+  if (intervalMinEl && intervalMaxEl) {
+    intervalMinEl.addEventListener("input", function () {
+      const min = parseInt(this.value, 10);
+      const maxEl = document.getElementById("intervalMax");
+      if (maxEl && parseInt(maxEl.value, 10) < min) maxEl.value = min;
+      updateDualRangeDisplay();
     });
+    intervalMaxEl.addEventListener("input", function () {
+      const max = parseInt(this.value, 10);
+      const minEl = document.getElementById("intervalMin");
+      if (minEl && parseInt(minEl.value, 10) > max) minEl.value = max;
+      updateDualRangeDisplay();
+    });
+    updateDualRangeDisplay();
+  }
+
+  const intervalMode = document.getElementById("intervalMode");
+  const intervalRangeGroup = document.getElementById("intervalRangeGroup");
+  const intervalSetGroup = document.getElementById("intervalSetGroup");
+  function syncIntervalGroups() {
+    if (!intervalMode || !intervalRangeGroup || !intervalSetGroup) return;
+    const isRange = intervalMode.value === "range";
+    intervalRangeGroup.style.display = isRange ? "flex" : "none";
+    intervalSetGroup.style.display = isRange ? "none" : "flex";
+    if (isRange) intervalSetGroup.setAttribute("hidden", "");
+    else intervalSetGroup.removeAttribute("hidden");
+  }
+  syncIntervalGroups();
+  if (intervalMode) intervalMode.addEventListener("change", syncIntervalGroups);
+
+  const loginButton = document.getElementById("loginButton");
+  const startButton = document.getElementById("startButton");
+  checkTiktokLogin().then((isLoggedIn) => {
+    if (isLoggedIn) {
+      startButton.disabled = false;
+      startButton.style.display = "block";
+      if (loginButton) { loginButton.style.display = "none"; loginButton.hidden = true; }
+    } else {
+      startButton.disabled = true;
+      startButton.style.display = "none";
+      if (loginButton) {
+        loginButton.hidden = false;
+        loginButton.style.display = "block";
+        const i18n = typeof chrome !== "undefined" && chrome.i18n ? chrome.i18n : null;
+        loginButton.title = (i18n && i18n.getMessage("notLoggedIn")) || "Sign in to TikTok first.";
+      }
+    }
+  });
+  if (loginButton) {
+    loginButton.addEventListener("click", () => {
+      chrome.tabs.create({ url: "https://www.tiktok.com/login", active: true });
+      window.close();
+    });
+  }
+
+  startButton.addEventListener("click", function () {
+    if (startButton.disabled) return;
+    const config = getConfig();
+    saveConfig(config);
+    chrome.runtime.sendMessage({
+      action: "startRemovingLikes",
+      payload: { config },
+    });
+    window.close();
+  });
+
+  const donateButton = document.getElementById("donateButton");
+  if (donateButton) donateButton.addEventListener("click", openDonation);
 });

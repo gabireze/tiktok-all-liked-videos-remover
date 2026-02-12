@@ -1,29 +1,26 @@
 {
   "name": "TikTok All Liked Videos Remover",
-  "description": "A Chrome extension to remove all liked videos on TikTok.",
-  "version": "1.2.2",
+  "description": "Automatically remove liked videos on TikTok with an in-page control panel and downloadable report.",
+  "version": "2.0.0",
   "author": {
     "name": "Gabriel de Rezende Gonçalves",
     "email": "contato@gabireze.com.br",
     "url": "https://gabireze.com.br/"
   },
-  "homepage_url": "https://chrome.google.com/webstore/detail/tiktok-all-liked-videos-r/eafmacjdgennnmhagdkdckgjokmnllci/",
-  "permissions": ["scripting", "tabs"],
+  "homepage_url": "https://chromewebstore.google.com/detail/tiktok-all-liked-videos-r/eafmacjdgennnmhagdkdckgjokmnllci",
+  "permissions": ["scripting", "tabs", "cookies", "storage"],
   "host_permissions": ["https://*.tiktok.com/*"],
-  "background": {
-    "service_worker": "background.js"
-  },
-  "icons": {
-    "16": "icon.png",
-    "48": "icon.png",
-    "128": "icon.png"
-  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.tiktok.com/*"],
+      "js": ["script.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "background": { "service_worker": "background.js" },
+  "icons": { "16": "icon.png", "48": "icon.png", "128": "icon.png" },
   "action": {
-    "default_icon": {
-      "16": "icon.png",
-      "48": "icon.png",
-      "128": "icon.png"
-    },
+    "default_icon": { "16": "icon.png", "48": "icon.png", "128": "icon.png" },
     "default_title": "TikTok All Liked Videos Remover",
     "default_popup": "popup.html"
   },
@@ -33,5 +30,6 @@
       "matches": ["https://*.tiktok.com/*"]
     }
   ],
-  "manifest_version": 3
+  "manifest_version": 3,
+  "default_locale": "en"
 }

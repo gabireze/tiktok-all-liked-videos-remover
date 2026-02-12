@@ -1,0 +1,78 @@
+{
+  "appTitle": { "message": "TikTok All Liked Videos Remover" },
+  "step1": {
+    "message": "Adım 1: Yeni bir sekmede tiktok.com'u açın ve hesabınıza giriş yaptığınızdan emin olun."
+  },
+  "step2": {
+    "message": "Adım 2: Buraya geri dönün ve başlamak için aşağıdaki butona tıklayın."
+  },
+  "startButton": { "message": "Beğenileri kaldırmaya başla" },
+  "list1": { "message": "Eklenti TikTok profilinizi açacak" },
+  "list2": { "message": "\"Beğenilenler\" sekmesine gidin" },
+  "list3": { "message": "Her beğenilen videoyu açın" },
+  "list4": { "message": "Beğeniyi kaldırın ve bir sonrakine geçin" },
+  "list5": { "message": "Tüm beğeniler silinene kadar tekrarlayın" },
+  "note": {
+    "message": "Not: Eğer çok sayıda beğenilen videonuz varsa, işlem uzun sürebilir. TikTok çok fazla işlem yapılırsa geçici olarak engelleme uygulayabilir. Yaklaşık 1 saat bekleyip tekrar deneyin."
+  },
+  "tip": {
+    "message": "İpucu: İşlem tamamlandığında, tüm beğenilerin silindiğinden emin olmak için TikTok profilinizi yenileyin."
+  },
+  "linkReposts": { "message": "Tüm Yeniden Paylaşımları Kaldır" },
+  "linkFavorite": { "message": "Tüm Favori Videoları Kaldır" },
+  "linkGitHub": { "message": "GitHub Deposu" },
+  "donateTooltip": { "message": "Projeyi destekle" },
+  "notLoggedIn": { "message": "Önce TikTok'a giriş yapın." },
+  "signInTiktok": { "message": "TikTok'a giriş yap" },
+  "configTitle": { "message": "Ayarlar" },
+  "useKeywords": {
+    "message": "Anahtar kelimeye göre filtrele (tümünü kaldırmak için boş bırakın veya işareti kaldırın)"
+  },
+  "intervalMode": { "message": "Kaldırmalar arası süre:" },
+  "intervalRange": { "message": "Min. ve max. arası (saniye)" },
+  "intervalSet": { "message": "Sabit değerler (saniye)" },
+  "seconds": { "message": "sn" },
+  "reportFormat": { "message": "Rapor formatı:" },
+  "keywordsPlaceholder": { "message": "örn. cat, memecoin" },
+  "intervalSetPlaceholder": { "message": "örn. 1, 3, 5, 7" },
+  "pagePauseLabel": { "message": "Sayfalar arası bekleme (saniye):" },
+  "panelTitle": { "message": "TikTok Likes Remover" },
+  "statusPreparing": { "message": "Hazırlanıyor…" },
+  "statusPaused": { "message": "Duraklatıldı" },
+  "statusResuming": { "message": "Devam ediliyor…" },
+  "btnPause": { "message": "Duraklat" },
+  "btnResume": { "message": "Devam" },
+  "btnDownloadReport": { "message": "Raporu indir" },
+  "statusWaiting": { "message": "Sayfa bekleniyor…" },
+  "statusListing": { "message": "Beğeniler listeleniyor…" },
+  "statusPageRemoving": {
+    "message": "Sayfa $1$: $3$ öğeden $2$ kaldırılıyor…",
+    "placeholders": {
+      "1": { "content": "$1" },
+      "2": { "content": "$2" },
+      "3": { "content": "$3" }
+    }
+  },
+  "statusDone": { "message": "Tamamlandı! Tüm beğeniler işlendi." },
+  "statusNone": { "message": "Beğeni bulunamadı." },
+  "statusErrorNoAccount": {
+    "message": "Hesabınız tanımlanamadı. TikTok'u yenileyin ve tekrar deneyin."
+  },
+  "statusErrorRedirectedForyou": {
+    "message": "Giriş yapmadığınız için For You sayfasına yönlendirildiniz. Lütfen TikTok'a giriş yapın, ardından uzantıyı açıp Başlat'a tekrar tıklayın."
+  },
+  "statusErrorRemove": {
+    "message": "$1$ kaldırılırken hata. Konsolu kontrol edin.",
+    "placeholders": { "1": { "content": "$1" } }
+  },
+  "panelClose": { "message": "Kapat" },
+  "statsPages": { "message": "Sayfalar" },
+  "statsRemoved": { "message": "Kaldırıldı" },
+  "statsListed": { "message": "Listelendi" },
+  "statsFailed": { "message": "Başarısız" },
+  "statusStoppedFailures": {
+    "message": "Durduruldu: $1$ ardışık başarısızlık. Başarısız olanları görmek için raporu indirin.",
+    "placeholders": { "1": { "content": "$1" } }
+  },
+  "statusBetweenPages": { "message": "Sonraki sayfadan önce bekle…" }
+}

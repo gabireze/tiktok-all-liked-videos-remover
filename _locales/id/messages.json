@@ -1,0 +1,78 @@
+{
+  "appTitle": { "message": "TikTok All Liked Videos Remover" },
+  "step1": {
+    "message": "Langkah 1: Buka tiktok.com di tab baru dan pastikan Anda sudah login ke akun Anda."
+  },
+  "step2": {
+    "message": "Langkah 2: Kembali ke sini dan klik tombol di bawah untuk memulai proses."
+  },
+  "startButton": { "message": "Mulai Menghapus Likes" },
+  "list1": { "message": "Ekstensi akan membuka profil TikTok Anda" },
+  "list2": { "message": "Masuk ke tab \"Disukai\"" },
+  "list3": { "message": "Buka setiap video yang disukai" },
+  "list4": { "message": "Hapus like dan lanjut ke berikutnya" },
+  "list5": { "message": "Ulangi sampai semua likes dihapus" },
+  "note": {
+    "message": "Catatan: Jika Anda memiliki banyak video yang disukai, prosesnya bisa memakan waktu. TikTok mungkin memblokir sementara jika terlalu banyak aksi dalam waktu singkat. Tunggu sekitar 1 jam dan coba lagi."
+  },
+  "tip": {
+    "message": "Tips: Setelah proses selesai, segarkan profil TikTok Anda untuk memastikan semua likes telah dihapus."
+  },
+  "linkReposts": { "message": "Hapus Semua Video Repost" },
+  "linkFavorite": { "message": "Hapus Semua Video Favorit" },
+  "linkGitHub": { "message": "Repositori GitHub" },
+  "donateTooltip": { "message": "Dukung proyek ini" },
+  "notLoggedIn": { "message": "Masuk ke TikTok terlebih dahulu." },
+  "signInTiktok": { "message": "Masuk ke TikTok" },
+  "configTitle": { "message": "Pengaturan" },
+  "useKeywords": {
+    "message": "Filter menurut kata kunci (kosongkan atau biarkan tidak dicentang untuk menghapus semua)"
+  },
+  "intervalMode": { "message": "Interval antara penghapusan:" },
+  "intervalRange": { "message": "Antara min dan max (detik)" },
+  "intervalSet": { "message": "Nilai tetap (detik)" },
+  "seconds": { "message": "det" },
+  "reportFormat": { "message": "Format laporan:" },
+  "keywordsPlaceholder": { "message": "mis. cat, memecoin" },
+  "intervalSetPlaceholder": { "message": "mis. 1, 3, 5, 7" },
+  "pagePauseLabel": { "message": "Jeda antar halaman (detik):" },
+  "panelTitle": { "message": "TikTok Likes Remover" },
+  "statusPreparing": { "message": "Mempersiapkan…" },
+  "statusPaused": { "message": "Dijeda" },
+  "statusResuming": { "message": "Melanjutkan…" },
+  "btnPause": { "message": "Jeda" },
+  "btnResume": { "message": "Lanjutkan" },
+  "btnDownloadReport": { "message": "Unduh laporan" },
+  "statusWaiting": { "message": "Menunggu halaman…" },
+  "statusListing": { "message": "Mendaftar likes…" },
+  "statusPageRemoving": {
+    "message": "Halaman $1$: menghapus $2$ dari $3$ item…",
+    "placeholders": {
+      "1": { "content": "$1" },
+      "2": { "content": "$2" },
+      "3": { "content": "$3" }
+    }
+  },
+  "statusDone": { "message": "Selesai! Semua likes telah diproses." },
+  "statusNone": { "message": "Tidak ada like ditemukan." },
+  "statusErrorNoAccount": {
+    "message": "Tidak dapat mengidentifikasi akun Anda. Muat ulang TikTok dan coba lagi."
+  },
+  "statusErrorRedirectedForyou": {
+    "message": "Anda diarahkan ke For You karena belum login. Silakan login ke TikTok, lalu buka ekstensi dan klik Mulai lagi."
+  },
+  "statusErrorRemove": {
+    "message": "Gagal menghapus $1$. Periksa konsol.",
+    "placeholders": { "1": { "content": "$1" } }
+  },
+  "panelClose": { "message": "Tutup" },
+  "statsPages": { "message": "Halaman" },
+  "statsRemoved": { "message": "Dihapus" },
+  "statsListed": { "message": "Terdafar" },
+  "statsFailed": { "message": "Gagal" },
+  "statusStoppedFailures": {
+    "message": "Dihentikan: $1$ kegagalan berturut-turut. Unduh laporan untuk melihat yang gagal.",
+    "placeholders": { "1": { "content": "$1" } }
+  },
+  "statusBetweenPages": { "message": "Jeda sebelum halaman berikutnya…" }
+}

@@ -1,0 +1,78 @@
+{
+  "appTitle": { "message": "TikTok All Liked Videos Remover" },
+  "step1": {
+    "message": "Étape 1 : Ouvrez tiktok.com dans un nouvel onglet et assurez-vous d'être connecté à votre compte."
+  },
+  "step2": {
+    "message": "Étape 2 : Revenez ici et cliquez sur le bouton ci-dessous pour commencer."
+  },
+  "startButton": { "message": "Commencer la suppression des likes" },
+  "list1": { "message": "L'extension ouvrira votre profil TikTok" },
+  "list2": { "message": "Accéder à l'onglet \"J'aime\"" },
+  "list3": { "message": "Ouvrir chaque vidéo aimée" },
+  "list4": { "message": "Retirer le like et passer à la suivante" },
+  "list5": { "message": "Répéter jusqu'à suppression de tous les likes" },
+  "note": {
+    "message": "Remarque : Si vous avez beaucoup de vidéos aimées, le processus peut être long. TikTok peut temporairement bloquer les actions si elles sont trop nombreuses. Attendez environ 1 heure et réessayez."
+  },
+  "tip": {
+    "message": "Conseil : Une fois le processus terminé, actualisez votre profil TikTok pour vérifier que tous les likes ont été supprimés."
+  },
+  "linkReposts": { "message": "Supprimer toutes les vidéos repostées" },
+  "linkFavorite": { "message": "Supprimer toutes les vidéos favorites" },
+  "linkGitHub": { "message": "Dépôt GitHub" },
+  "donateTooltip": { "message": "Soutenir le projet" },
+  "notLoggedIn": { "message": "Connectez-vous d'abord à TikTok." },
+  "signInTiktok": { "message": "Se connecter à TikTok" },
+  "configTitle": { "message": "Paramètres" },
+  "useKeywords": {
+    "message": "Filtrer par mots-clés (décochez ou laissez vide pour tout supprimer)"
+  },
+  "intervalMode": { "message": "Intervalle entre les suppressions :" },
+  "intervalRange": { "message": "Entre min et max (secondes)" },
+  "intervalSet": { "message": "Valeurs fixes (secondes)" },
+  "seconds": { "message": "s" },
+  "reportFormat": { "message": "Format du rapport :" },
+  "keywordsPlaceholder": { "message": "ex. cat, memecoin" },
+  "intervalSetPlaceholder": { "message": "ex. 1, 3, 5, 7" },
+  "pagePauseLabel": { "message": "Pause entre les pages (secondes) :" },
+  "panelTitle": { "message": "TikTok Likes Remover" },
+  "statusPreparing": { "message": "Préparation…" },
+  "statusPaused": { "message": "En pause" },
+  "statusResuming": { "message": "Reprise…" },
+  "btnPause": { "message": "Pause" },
+  "btnResume": { "message": "Reprendre" },
+  "btnDownloadReport": { "message": "Télécharger le rapport" },
+  "statusWaiting": { "message": "En attente de la page…" },
+  "statusListing": { "message": "Chargement des likes…" },
+  "statusPageRemoving": {
+    "message": "Page $1$ : suppression de $2$ sur $3$…",
+    "placeholders": {
+      "1": { "content": "$1" },
+      "2": { "content": "$2" },
+      "3": { "content": "$3" }
+    }
+  },
+  "statusDone": { "message": "Terminé. Tous les likes ont été traités." },
+  "statusNone": { "message": "Aucun like trouvé." },
+  "statusErrorNoAccount": {
+    "message": "Impossible d'identifier votre compte. Rechargez TikTok et réessayez."
+  },
+  "statusErrorRedirectedForyou": {
+    "message": "Vous avez été redirigé vers For You car vous n'êtes pas connecté. Connectez-vous à TikTok, puis rouvrez l'extension et cliquez sur Démarrer."
+  },
+  "statusErrorRemove": {
+    "message": "Erreur lors de la suppression de $1$. Vérifiez la console.",
+    "placeholders": { "1": { "content": "$1" } }
+  },
+  "panelClose": { "message": "Fermer" },
+  "statsPages": { "message": "Pages" },
+  "statsRemoved": { "message": "Supprimés" },
+  "statsListed": { "message": "Listés" },
+  "statsFailed": { "message": "Échecs" },
+  "statusStoppedFailures": {
+    "message": "Arrêt : $1$ échecs consécutifs. Téléchargez le rapport pour voir les échecs.",
+    "placeholders": { "1": { "content": "$1" } }
+  },
+  "statusBetweenPages": { "message": "Pause avant la page suivante…" }
+}
