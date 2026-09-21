@@ -6,17 +6,18 @@
   "step2": {
     "message": "Adım 2: Buraya geri dönün ve başlamak için aşağıdaki butona tıklayın."
   },
-  "startButton": { "message": "Beğenileri kaldırmaya başla" },
+  "startButton": { "message": "Beğenileri Tara ve Kaldır" },
+  "scanButton": { "message": "Kaldırmadan analiz et" },
   "list1": { "message": "Eklenti TikTok profilinizi açacak" },
   "list2": { "message": "\"Beğenilenler\" sekmesine gidin" },
-  "list3": { "message": "Her beğenilen videoyu açın" },
-  "list4": { "message": "Beğeniyi kaldırın ve bir sonrakine geçin" },
-  "list5": { "message": "Tüm beğeniler silinene kadar tekrarlayın" },
+  "list3": { "message": "Tüm beğenileri okuyun ve isteğe bağlı filtreyi uygulayın" },
+  "list4": { "message": "Kaldırmadan önce tam eşleşme sayısını onaylayın" },
+  "list5": { "message": "Sonucu TikTok ile doğrulayın ve raporu oluşturun" },
   "note": {
-    "message": "Not: Eğer çok sayıda beğenilen videonuz varsa, işlem uzun sürebilir. TikTok çok fazla işlem yapılırsa geçici olarak engelleme uygulayabilir. Yaklaşık 1 saat bekleyip tekrar deneyin."
+    "message": "Uzantı önce tarar ve herhangi bir şeyi kaldırmadan önce onay ister. Duraklatabilir, durdurabilir ve doğrulanmış bir rapor indirebilirsiniz."
   },
   "tip": {
-    "message": "İpucu: İşlem tamamlandığında, tüm beğenilerin silindiğinden emin olmak için TikTok profilinizi yenileyin."
+    "message": "Son doğrulama onaylanan kaldırmaları, kalan beğenileri ve hataları ayrı ayrı gösterir."
   },
   "linkReposts": { "message": "Tüm Yeniden Paylaşımları Kaldır" },
   "linkFavorite": { "message": "Tüm Favori Videoları Kaldır" },
@@ -74,5 +75,28 @@
     "message": "Durduruldu: $1$ ardışık başarısızlık. Başarısız olanları görmek için raporu indirin.",
     "placeholders": { "1": { "content": "$1" } }
   },
-  "statusBetweenPages": { "message": "Sonraki sayfadan önce bekle…" }
+  "statusBetweenPages": { "message": "Sonraki sayfadan önce bekle…" },
+  "btnStop": { "message": "Durdur" },
+  "btnCancel": { "message": "İptal" },
+  "btnConfirmRemoval": { "message": "$1$ beğeniyi kaldır", "placeholders": { "1": { "content": "$1" } } },
+  "statsMatched": { "message": "Eşleşen" },
+  "statsProcessed": { "message": "İşlenen" },
+  "statsVerified": { "message": "Doğrulanan" },
+  "statsRemaining": { "message": "Kalan" },
+  "statusCancelled": { "message": "Kullanıcı tarafından durduruldu." },
+  "statusNoMatches": { "message": "Beğeniler bulundu ancak hiçbiri filtreyle eşleşmiyor." },
+  "statusReadyToRemove": { "message": "$2$ beğeniden $1$ tanesi eşleşiyor. Kaldırmayı onaylayın.", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } },
+  "statusRemovingProgress": { "message": "$2$ beğeniden $1$ kaldırılıyor…", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } },
+  "statusVerifying": { "message": "Sonuç TikTok ile doğrulanıyor…" },
+  "statusVerifiedDone": { "message": "Tamamlandı ve doğrulandı: $1$ beğeni kaldırıldı.", "placeholders": { "1": { "content": "$1" } } },
+  "statusPartial": { "message": "Doğrulama tamamlandı: $1$ kaldırıldı, $2$ hâlâ mevcut.", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } },
+  "statusOpeningLiked": { "message": "Beğenilenler sekmesi açılıyor…" },
+  "statusLikedTabUnavailable": { "message": "Beğenilenler sekmesi seçilemedi. Oturum açtığınızdan ve profilin yüklendiğinden emin olun." },
+  "statusListError": { "message": "Beğeniler yüklenemedi." },
+  "statusPageScanning": { "message": "$1$. sayfa: $3$ öğeden $2$ tanesi filtreyle eşleşiyor…", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" }, "3": { "content": "$3" } } },
+  "statusScanDone": { "message": "Analiz tamamlandı: $2$ beğeniden $1$ tanesi eşleşti. Hiçbir şey kaldırılmadı.", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } },
+  "statusBetweenScanPages": { "message": "Sonraki tarama sayfasından önce bekleniyor…" },
+  "statusRateLimited": { "message": "TikTok çok fazla isteği geçici olarak engelledi. Yaklaşık bir saat bekleyip yeniden deneyin." },
+  "statusSessionRejected": { "message": "TikTok oturumu reddetti. Sayfayı yenileyin, gerekirse tekrar oturum açın ve yeniden deneyin." },
+  "statusVerificationPage": { "message": "Doğrulama $1$. sayfa: $2$ beğeni hâlâ listeleniyor…", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } }
 }

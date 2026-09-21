@@ -1,14 +1,14 @@
 {
   "name": "TikTok All Liked Videos Remover",
   "description": "Automatically remove liked videos on TikTok with an in-page control panel and downloadable report.",
-  "version": "2.0.0",
+  "version": "2.2.0",
   "author": {
     "name": "Gabriel de Rezende Gonçalves",
     "email": "contato@gabireze.com.br",
     "url": "https://gabireze.com.br/"
   },
   "homepage_url": "https://chromewebstore.google.com/detail/tiktok-all-liked-videos-r/eafmacjdgennnmhagdkdckgjokmnllci",
-  "permissions": ["scripting", "tabs", "cookies", "storage"],
+  "permissions": ["scripting", "tabs", "storage"],
   "host_permissions": ["https://*.tiktok.com/*"],
   "content_scripts": [
     {
@@ -24,12 +24,6 @@
     "default_title": "TikTok All Liked Videos Remover",
     "default_popup": "popup.html"
   },
-  "web_accessible_resources": [
-    {
-      "resources": ["script.js", "styles.css"],
-      "matches": ["https://*.tiktok.com/*"]
-    }
-  ],
   "manifest_version": 3,
   "default_locale": "en"
 }

@@ -6,17 +6,18 @@
   "step2": {
     "message": "Langkah 2: Kembali ke sini dan klik butang di bawah untuk memulakan."
   },
-  "startButton": { "message": "Mulakan penghapusan likes" },
+  "startButton": { "message": "Imbas dan Padam Like" },
+  "scanButton": { "message": "Analisis tanpa memadam" },
   "list1": { "message": "Sambungan ini akan membuka profil TikTok anda" },
   "list2": { "message": "Pergi ke tab \"Disukai\"" },
-  "list3": { "message": "Buka setiap video yang disukai" },
-  "list4": { "message": "Alih keluar like dan teruskan ke yang seterusnya" },
-  "list5": { "message": "Ulangi sehingga semua likes dipadamkan" },
+  "list3": { "message": "Baca semua like dan gunakan penapis pilihan" },
+  "list4": { "message": "Sahkan jumlah tepat sebelum sebarang pemadaman" },
+  "list5": { "message": "Sahkan hasil dengan TikTok dan cipta laporan" },
   "note": {
-    "message": "Nota: Jika anda mempunyai banyak video disukai, proses ini mungkin mengambil masa. TikTok mungkin menyekat tindakan buat sementara waktu jika terlalu banyak dilakukan. Tunggu kira-kira 1 jam dan cuba semula."
+    "message": "Sambungan mengimbas dahulu dan meminta pengesahan sebelum memadam apa-apa. Anda boleh jeda, berhenti dan memuat turun laporan yang disahkan."
   },
   "tip": {
-    "message": "Petua: Setelah proses selesai, segarkan profil TikTok anda untuk memastikan semua likes telah dipadamkan."
+    "message": "Pengesahan akhir memisahkan pemadaman disahkan, like yang masih ada dan kegagalan."
   },
   "linkReposts": { "message": "Padam Semua Video Repost" },
   "linkFavorite": { "message": "Padam Semua Video Kegemaran" },
@@ -74,5 +75,28 @@
     "message": "Dihentikan: $1$ kegagalan berturut-turut. Muat turun laporan untuk lihat yang gagal.",
     "placeholders": { "1": { "content": "$1" } }
   },
-  "statusBetweenPages": { "message": "Jeda sebelum halaman seterusnya…" }
+  "statusBetweenPages": { "message": "Jeda sebelum halaman seterusnya…" },
+  "btnStop": { "message": "Hentikan" },
+  "btnCancel": { "message": "Batal" },
+  "btnConfirmRemoval": { "message": "Padam $1$ like", "placeholders": { "1": { "content": "$1" } } },
+  "statsMatched": { "message": "Sepadan" },
+  "statsProcessed": { "message": "Diproses" },
+  "statsVerified": { "message": "Disahkan" },
+  "statsRemaining": { "message": "Berbaki" },
+  "statusCancelled": { "message": "Dihentikan oleh pengguna." },
+  "statusNoMatches": { "message": "Like ditemui, tetapi tiada yang sepadan dengan penapis." },
+  "statusReadyToRemove": { "message": "$1$ daripada $2$ like sepadan. Sahkan untuk memadam.", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } },
+  "statusRemovingProgress": { "message": "Memadam $1$ daripada $2$…", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } },
+  "statusVerifying": { "message": "Mengesahkan hasil dengan TikTok…" },
+  "statusVerifiedDone": { "message": "Selesai dan disahkan: $1$ like dipadam.", "placeholders": { "1": { "content": "$1" } } },
+  "statusPartial": { "message": "Pengesahan selesai: $1$ dipadam, $2$ masih ada.", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } },
+  "statusOpeningLiked": { "message": "Membuka tab Disukai…" },
+  "statusLikedTabUnavailable": { "message": "Tab Disukai tidak dapat dipilih. Pastikan anda telah log masuk dan profil sudah dimuatkan." },
+  "statusListError": { "message": "Like tidak dapat dimuatkan." },
+  "statusPageScanning": { "message": "Halaman $1$: $2$ daripada $3$ item sepadan dengan penapis…", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" }, "3": { "content": "$3" } } },
+  "statusScanDone": { "message": "Analisis selesai: $1$ daripada $2$ like sepadan. Tiada yang dipadam.", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } },
+  "statusBetweenScanPages": { "message": "Jeda sebelum halaman imbasan seterusnya…" },
+  "statusRateLimited": { "message": "TikTok menyekat terlalu banyak permintaan buat sementara. Tunggu kira-kira satu jam dan cuba lagi." },
+  "statusSessionRejected": { "message": "TikTok menolak sesi. Muat semula halaman, log masuk semula jika perlu, kemudian cuba lagi." },
+  "statusVerificationPage": { "message": "Pengesahan halaman $1$: $2$ like masih disenaraikan…", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } }
 }

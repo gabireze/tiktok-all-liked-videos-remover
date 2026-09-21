@@ -1,0 +1,32 @@
+=== Chrome Web Store – Privacy / Single purpose & permission justifications (Likes extension) ===
+
+--- Único propósito / Single purpose ---
+Descrição do único propósito (Description of single purpose):
+
+This extension has a single purpose: to help users remove liked videos from their TikTok account in bulk. It first scans every liked-video page without changing anything, applies the optional keyword filter, and shows the exact matched count. Removal begins only after explicit confirmation. The extension then scans TikTok again to verify which likes disappeared and which remain. The in-page panel supports pause, cancellation, and a local JSON or CSV report. No data is sent to any server other than TikTok; all logic runs in the user's browser using their existing session.
+
+
+--- Justificativa de scripting (Justification for scripting) ---
+
+The extension needs the scripting permission to (1) inject and run the content script on TikTok pages so it can list liked videos and show the in-page control panel, (2) run the remove-like API request in the page context (via chrome.scripting.executeScript with world MAIN) so the request is treated like a normal site action and TikTok accepts it, and (3) read session data (e.g. secUid, csrfToken) from the page to identify the user and build authenticated requests. Without scripting, the extension could not perform the removal on TikTok's site.
+
+
+--- Justificativa de tabs (Justification for tabs) ---
+
+The tabs permission is used to open the user's TikTok profile in a new tab when they click Start, focus an already active run, and send messages to that TikTok tab so the content script can begin listing and removing likes. The extension does not read or modify the content of other tabs.
+
+
+--- Justificativa de storage (Justification for storage) ---
+
+The storage permission is used to save the user's local popup settings and a temporary chrome.storage.session active-job marker. The marker prevents two overlapping removal runs if Chrome suspends and later restarts the Manifest V3 service worker, and stale markers automatically expire after 12 hours. This data stays on the user's device and is not transmitted anywhere.
+
+
+--- Justificativa de Permissão do host (Justification for host permission) ---
+
+The host permission https://*.tiktok.com/* is required because the extension only works on TikTok's website. The content script must run on TikTok pages to scan liked videos (api/favorite/item_list), perform the confirmed remove-like requests (api/commit/item/digg), and scan again for verification. No other domains are accessed. All communication is between the user's browser and TikTok using their existing session; no data is sent to the developer or any third party.
+
+
+--- Código remoto (Remote code) ---
+Não, não estou usando Código remoto / No, I am not using remote code.
+
+(No justification needed.)

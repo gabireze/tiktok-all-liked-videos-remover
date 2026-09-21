@@ -26,8 +26,9 @@ The extension performs the following actions, entirely in your browser:
 - On your TikTok profile, uses the same authenticated web APIs that the site uses to:
   - List your liked videos (e.g. `api/favorite/item_list/`).
   - Send requests to remove each selected like (e.g. `api/commit/item/digg/` with `type: '0'`). The removal request is run in the page context so it behaves like a normal site action.
-- Lets you optionally filter by keywords so that only likes matching those terms are removed; otherwise all listed likes are processed. You can set delays between removals and a pause between pages.
-- Shows an in-page control panel with live status, pause/resume, and a downloadable report (JSON or CSV) of which items were successfully removed and which failed, if any.
+- Scans all liked-video pages before making changes, applies the optional keyword filter, and asks for explicit confirmation showing the exact number selected.
+- Removes only the confirmed items, supports immediate pause/cancellation, and scans again to verify the resulting TikTok state.
+- Shows an in-page control panel and creates a local JSON or CSV report containing matched items, verified removals, remaining items, failures, and request diagnostics.
 
 All requests are made **directly from your browser to TikTok** using your existing session.  
 No data is sent to any server controlled by this extension or its developer.
@@ -46,9 +47,8 @@ The extension uses the following Chrome permissions:
 
 - **`host_permissions`** (`https://*.tiktok.com/*`): Required so the extension can run only on TikTok pages. No other domains are accessed.
 - **`scripting`**: Needed to inject and run the content script on TikTok pages, to run the remove-like request in the page context, and to read session data required to identify your account.
-- **`tabs`**: Used to open your TikTok profile (or the TikTok login page when you choose to sign in) in a new tab and to communicate with that tab.
-- **`cookies`**: Used **only in the popup** to check whether you are logged in to TikTok (by checking TikTok cookies locally). Cookie values are not stored or sent anywhere.
-- **`storage`**: Used to save your local configuration (intervals, keywords, report format, etc.) inside your browser.
+- **`tabs`**: Used to open your TikTok profile in a new tab, focus an already active run, and communicate with that TikTok tab.
+- **`storage`**: Used to save your local configuration and a temporary active-job marker inside your browser, preventing overlapping runs even if Chrome suspends the extension worker. Stale markers automatically expire after 12 hours.
 
 These permissions are the minimum required for the extension to perform its intended function.  
 They are never used to collect analytics, track you across sites, or send data to external services.

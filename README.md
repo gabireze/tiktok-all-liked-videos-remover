@@ -15,10 +15,15 @@ Remove all your liked videos on TikTok automatically with a single action.
 
 - Opens your TikTok profile in a new tab automatically  
 - Uses the same authenticated TikTok web APIs as the site to list and remove liked videos  
+- Includes a read-only analysis mode to validate the session, filters, pagination, and matching count before removing anything
+- Distinguishes an empty likes list from session, rate-limit, HTTP, and invalid-response errors
 - In-page control panel on TikTok with:
-  - Live status and basic statistics (pages, removed, listed, failures)
-  - Pause / Resume
-  - Downloadable report (JSON or CSV) with removed and failed items  
+  - Full read-only scan before any change
+  - Explicit confirmation showing how many likes match the filter
+  - Live statistics for listed, matched, processed, verified, remaining, and failed items
+  - Immediate pause, resume, and cancellation, including in-flight request cancellation
+  - Final re-scan that verifies the result against TikTok
+  - Downloadable JSON or formula-safe CSV report with one final status per item
 - Configurable delay between removals (1–10 seconds, random range or fixed set)  
 - Optional keyword filter to only remove likes that match certain terms
 
@@ -47,11 +52,13 @@ Remove all your liked videos on TikTok automatically with a single action.
    - Whether to filter by keywords or remove all likes
    - Interval mode (random range or fixed set of seconds between removals)
    - Pause between pages and report format (JSON or CSV)
-4. Click **Start Removing Likes**.
+4. Click **Scan and Remove Likes**.
 5. A TikTok tab will open automatically. The in-page panel will appear near the top-right:
-   - Shows current status (preparing, listing, removing, between pages, done)
-   - You can pause or resume the process
-   - You can download a report of removed and failed items at any time once there is data
+   - The extension opens the **Liked** tab and scans every page without changing anything.
+   - Review the listed and matched counts, then explicitly confirm the removal.
+   - You can pause, resume, or stop; closing the panel also cancels the active run.
+   - After removal, the extension scans again and confirms which likes disappeared and which remain.
+   - You can download a report as soon as scan data is available.
 6. Keep the tab open until the process finishes. Do not close it during the operation.
 
 ---
@@ -64,8 +71,11 @@ Remove all your liked videos on TikTok automatically with a single action.
   - Marks the process as paused and disables the pause/resume button.
 - When the extension cannot identify your account (no valid session data found), it shows a similar error message and stops safely.
 - When removing likes:
+  - The complete list is captured before the first removal, so pagination cannot skip items as the list changes.
   - Only items that match your keyword filter (if enabled) are removed.
-  - The panel keeps track of pages visited, items listed, items removed, and failures.
+  - A confirmation step shows the exact number selected before removal starts.
+  - Temporary network/server failures use limited exponential-backoff retries.
+  - The panel distinguishes accepted requests from removals verified in the final scan.
 - Failures:
   - Any failed removal is logged in the panel as a failure.
   - Failed items are included in the report with a status flag so you can review them later.
@@ -75,17 +85,15 @@ Remove all your liked videos on TikTok automatically with a single action.
 
 ## Report format
 
-The report exported from the panel contains all items that were processed:
+The report contains metadata, an aggregate summary, diagnostics, and one final status per matched item:
 
-- JSON: an object with two arrays
-  - `removed`: items successfully removed
-  - `failed`: items that could not be removed
-- CSV: one table with the following columns
+- JSON: `metadata`, `summary`, `items`, and `diagnostics`.
+- CSV: one formula-safe table with the following columns:
   - `id`
   - `authorName`
   - `desc`
   - `url`
-  - `status` (`removed` or `failed`)
+  - `status` (`matched`, `verified_removed`, `still_present`, `request_failed`, or `not_processed`)
 
 This makes it easy to audit what was removed and what failed, or to keep a backup list of liked videos.
 
@@ -98,8 +106,7 @@ The extension uses the following Chrome permissions:
 - `host_permissions` (`https://*.tiktok.com/*`): allows the extension to run only on TikTok pages.
 - `scripting`: injects and runs the content script on TikTok pages and runs the remove-like request in the page context (so it works like the site). Also reads session data needed to identify your account.
 - `tabs`: opens your TikTok profile in a new tab and communicates with that tab.
-- `cookies`: used only in the popup to check whether you are logged in to TikTok (by checking TikTok cookies locally).
-- `storage`: saves your configuration (intervals, keywords, report format, etc.) in your browser.
+- `storage`: saves your configuration locally and keeps a temporary active-job marker (automatically expired after 12 hours) to prevent overlapping runs.
 
 No analytics, tracking, or external servers are used. All operations happen in your browser, talking directly to TikTok.
 
@@ -109,7 +116,7 @@ No analytics, tracking, or external servers are used. All operations happen in y
 
 - The process may take time depending on how many liked videos you have.
 - If TikTok temporarily blocks actions (rate limiting), wait about 1 hour and run the extension again.
-- To confirm everything was removed, refresh your profile after the process completes.
+- The extension performs up to three final verification scans to account for short TikTok propagation delays.
 
 ---
 

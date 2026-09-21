@@ -6,17 +6,18 @@
   "step2": {
     "message": "Schritt 2: Kehre hierher zurück und klicke auf die Schaltfläche unten, um zu beginnen."
   },
-  "startButton": { "message": "Likes entfernen starten" },
+  "startButton": { "message": "Likes scannen und entfernen" },
+  "scanButton": { "message": "Analysieren, ohne zu entfernen" },
   "list1": { "message": "Die Erweiterung öffnet dein TikTok-Profil" },
   "list2": { "message": "Gehe zum Tab „Gefällt mir“" },
-  "list3": { "message": "Öffne jedes beliebte Video" },
-  "list4": { "message": "Entferne den Like und gehe zum nächsten" },
-  "list5": { "message": "Wiederhole dies, bis alle Likes entfernt wurden" },
+  "list3": { "message": "Alle Likes lesen und den optionalen Filter anwenden" },
+  "list4": { "message": "Die genaue Trefferzahl vor dem Entfernen bestätigen" },
+  "list5": { "message": "Das Ergebnis bei TikTok prüfen und den Bericht erstellen" },
   "note": {
-    "message": "Hinweis: Wenn du viele beliebte Videos hast, kann der Vorgang etwas dauern. TikTok kann temporär Aktionen blockieren, wenn zu viele durchgeführt werden. Warte etwa eine Stunde und versuche es erneut."
+    "message": "Die Erweiterung scannt zuerst und bittet um Bestätigung, bevor etwas entfernt wird. Du kannst pausieren, stoppen und einen geprüften Bericht herunterladen."
   },
   "tip": {
-    "message": "Tipp: Wenn der Vorgang abgeschlossen ist, aktualisiere dein TikTok-Profil, um zu überprüfen, ob alle Likes entfernt wurden."
+    "message": "Die Abschlussprüfung zeigt getrennt bestätigte Entfernungen, verbleibende Likes und Fehler."
   },
   "linkReposts": { "message": "Alle Reposts entfernen" },
   "linkFavorite": { "message": "Alle Favoriten-Videos entfernen" },
@@ -74,5 +75,28 @@
     "message": "Gestoppt: $1$ aufeinanderfolgende Fehler. Bericht herunterladen, um fehlgeschlagene anzuzeigen.",
     "placeholders": { "1": { "content": "$1" } }
   },
-  "statusBetweenPages": { "message": "Pause vor der nächsten Seite…" }
+  "statusBetweenPages": { "message": "Pause vor der nächsten Seite…" },
+  "btnStop": { "message": "Stoppen" },
+  "btnCancel": { "message": "Abbrechen" },
+  "btnConfirmRemoval": { "message": "$1$ Likes entfernen", "placeholders": { "1": { "content": "$1" } } },
+  "statsMatched": { "message": "Treffer" },
+  "statsProcessed": { "message": "Verarbeitet" },
+  "statsVerified": { "message": "Bestätigt" },
+  "statsRemaining": { "message": "Verbleibend" },
+  "statusCancelled": { "message": "Vom Benutzer gestoppt." },
+  "statusNoMatches": { "message": "Likes wurden gefunden, aber keines entspricht dem Filter." },
+  "statusReadyToRemove": { "message": "$1$ von $2$ Likes stimmen überein. Bestätige die Entfernung.", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } },
+  "statusRemovingProgress": { "message": "$1$ von $2$ werden entfernt…", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } },
+  "statusVerifying": { "message": "Ergebnis wird mit TikTok überprüft…" },
+  "statusVerifiedDone": { "message": "Fertig und bestätigt: $1$ Likes entfernt.", "placeholders": { "1": { "content": "$1" } } },
+  "statusPartial": { "message": "Überprüfung beendet: $1$ entfernt, $2$ noch vorhanden.", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } },
+  "statusOpeningLiked": { "message": "Der Tab ‚Gefällt mir‘ wird geöffnet…" },
+  "statusLikedTabUnavailable": { "message": "Der Tab ‚Gefällt mir‘ konnte nicht ausgewählt werden. Prüfe, ob du angemeldet bist und das Profil vollständig geladen ist." },
+  "statusListError": { "message": "Likes konnten nicht geladen werden." },
+  "statusPageScanning": { "message": "Seite $1$: $2$ von $3$ Einträgen stimmen mit dem Filter überein…", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" }, "3": { "content": "$3" } } },
+  "statusScanDone": { "message": "Analyse abgeschlossen: $1$ von $2$ Likes stimmen überein. Es wurde nichts entfernt.", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } },
+  "statusBetweenScanPages": { "message": "Pause vor der nächsten Scan-Seite…" },
+  "statusRateLimited": { "message": "TikTok hat zu viele Anfragen vorübergehend blockiert. Warte etwa eine Stunde und versuche es erneut." },
+  "statusSessionRejected": { "message": "TikTok hat die Sitzung abgelehnt. Lade die Seite neu, melde dich bei Bedarf erneut an und versuche es noch einmal." },
+  "statusVerificationPage": { "message": "Überprüfung Seite $1$: $2$ Likes noch gelistet…", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } }
 }

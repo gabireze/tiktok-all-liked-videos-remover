@@ -6,17 +6,18 @@
   "step2": {
     "message": "Step 2: Come back here and click the button below to start the process."
   },
-  "startButton": { "message": "Start Removing Likes" },
+  "startButton": { "message": "Scan and Remove Likes" },
+  "scanButton": { "message": "Analyze Without Removing" },
   "list1": { "message": "The extension will open your TikTok profile" },
   "list2": { "message": "Enter the \"Liked\" tab" },
   "list3": { "message": "Open each liked video" },
   "list4": { "message": "Remove the like and go to the next" },
   "list5": { "message": "Repeat until all liked videos are gone" },
   "note": {
-    "message": "Use intervals to avoid rate limits. You can Pause and Resume from the in-page panel and download a report when done."
+    "message": "The extension scans first and asks for confirmation before removing anything. You can pause, stop, and download a verified report."
   },
   "tip": {
-    "message": "Tip: Refresh your TikTok profile after finishing to confirm likes were removed."
+    "message": "The final verification checks TikTok again and reports any likes that are still present."
   },
   "linkReposts": { "message": "Remove All Reposted Videos" },
   "linkFavorite": { "message": "Remove All Favorite Videos" },
@@ -44,6 +45,8 @@
   "btnResume": { "message": "Resume" },
   "btnDownloadReport": { "message": "Download report" },
   "statusWaiting": { "message": "Waiting for page…" },
+  "statusOpeningLiked": { "message": "Opening the Liked tab…" },
+  "statusLikedTabUnavailable": { "message": "Could not open the Liked tab. Reload TikTok and try again." },
   "statusListing": { "message": "Listing likes…" },
   "statusPageRemoving": {
     "message": "Page $1$: removing $2$ of $3$ items…",
@@ -70,9 +73,61 @@
   "statsRemoved": { "message": "Removed" },
   "statsListed": { "message": "Listed" },
   "statsFailed": { "message": "Failed" },
+  "statsMatched": { "message": "Matched" },
+  "statsProcessed": { "message": "Processed" },
+  "statsVerified": { "message": "Verified" },
+  "statsRemaining": { "message": "Remaining" },
   "statusStoppedFailures": {
     "message": "Stopped: $1$ consecutive failures. Download report to see which failed.",
     "placeholders": { "1": { "content": "$1" } }
   },
-  "statusBetweenPages": { "message": "Pause before next page…" }
+  "statusBetweenPages": { "message": "Pause before next page…" },
+  "btnStop": { "message": "Stop" },
+  "btnCancel": { "message": "Cancel" },
+  "btnConfirmRemoval": {
+    "message": "Remove $1$ likes",
+    "placeholders": { "1": { "content": "$1" } }
+  },
+  "statusCancelled": { "message": "Stopped by user." },
+  "statusListError": { "message": "Could not list likes." },
+  "statusPageScanning": {
+    "message": "Page $1$: $2$ of $3$ items match the filter…",
+    "placeholders": {
+      "1": { "content": "$1" },
+      "2": { "content": "$2" },
+      "3": { "content": "$3" }
+    }
+  },
+  "statusScanDone": {
+    "message": "Analysis complete: $1$ of $2$ likes match.",
+    "placeholders": {
+      "1": { "content": "$1" },
+      "2": { "content": "$2" }
+    }
+  },
+  "statusBetweenScanPages": { "message": "Pause before scanning the next page…" },
+  "statusRateLimited": { "message": "TikTok temporarily limited requests. Wait before trying again." },
+  "statusSessionRejected": { "message": "TikTok rejected the session. Reload the page and try again." },
+  "statusNoMatches": { "message": "Likes were found, but none match the selected filter." },
+  "statusReadyToRemove": {
+    "message": "$1$ of $2$ likes match. Confirm to start removing.",
+    "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } }
+  },
+  "statusRemovingProgress": {
+    "message": "Removing $1$ of $2$…",
+    "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } }
+  },
+  "statusVerifying": { "message": "Verifying the result with TikTok…" },
+  "statusVerificationPage": {
+    "message": "Verification page $1$: $2$ likes still listed…",
+    "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } }
+  },
+  "statusVerifiedDone": {
+    "message": "Done and verified: $1$ likes removed.",
+    "placeholders": { "1": { "content": "$1" } }
+  },
+  "statusPartial": {
+    "message": "Finished with verification: $1$ removed, $2$ still present.",
+    "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } }
+  }
 }

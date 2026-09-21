@@ -6,17 +6,18 @@
   "step2": {
     "message": "Étape 2 : Revenez ici et cliquez sur le bouton ci-dessous pour commencer."
   },
-  "startButton": { "message": "Commencer la suppression des likes" },
+  "startButton": { "message": "Analyser et supprimer les likes" },
+  "scanButton": { "message": "Analyser sans supprimer" },
   "list1": { "message": "L'extension ouvrira votre profil TikTok" },
   "list2": { "message": "Accéder à l'onglet \"J'aime\"" },
-  "list3": { "message": "Ouvrir chaque vidéo aimée" },
-  "list4": { "message": "Retirer le like et passer à la suivante" },
-  "list5": { "message": "Répéter jusqu'à suppression de tous les likes" },
+  "list3": { "message": "Lire tous les likes et appliquer le filtre facultatif" },
+  "list4": { "message": "Confirmer le nombre exact avant toute suppression" },
+  "list5": { "message": "Vérifier le résultat auprès de TikTok et créer le rapport" },
   "note": {
-    "message": "Remarque : Si vous avez beaucoup de vidéos aimées, le processus peut être long. TikTok peut temporairement bloquer les actions si elles sont trop nombreuses. Attendez environ 1 heure et réessayez."
+    "message": "L’extension analyse d’abord et demande confirmation avant toute suppression. Vous pouvez mettre en pause, arrêter et télécharger un rapport vérifié."
   },
   "tip": {
-    "message": "Conseil : Une fois le processus terminé, actualisez votre profil TikTok pour vérifier que tous les likes ont été supprimés."
+    "message": "La vérification finale distingue les suppressions confirmées, les likes restants et les échecs."
   },
   "linkReposts": { "message": "Supprimer toutes les vidéos repostées" },
   "linkFavorite": { "message": "Supprimer toutes les vidéos favorites" },
@@ -74,5 +75,28 @@
     "message": "Arrêt : $1$ échecs consécutifs. Téléchargez le rapport pour voir les échecs.",
     "placeholders": { "1": { "content": "$1" } }
   },
-  "statusBetweenPages": { "message": "Pause avant la page suivante…" }
+  "statusBetweenPages": { "message": "Pause avant la page suivante…" },
+  "btnStop": { "message": "Arrêter" },
+  "btnCancel": { "message": "Annuler" },
+  "btnConfirmRemoval": { "message": "Supprimer $1$ likes", "placeholders": { "1": { "content": "$1" } } },
+  "statsMatched": { "message": "Correspondants" },
+  "statsProcessed": { "message": "Traités" },
+  "statsVerified": { "message": "Vérifiés" },
+  "statsRemaining": { "message": "Restants" },
+  "statusCancelled": { "message": "Arrêté par l’utilisateur." },
+  "statusNoMatches": { "message": "Des likes ont été trouvés, mais aucun ne correspond au filtre." },
+  "statusReadyToRemove": { "message": "$1$ likes sur $2$ correspondent. Confirmez la suppression.", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } },
+  "statusRemovingProgress": { "message": "Suppression de $1$ sur $2$…", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } },
+  "statusVerifying": { "message": "Vérification du résultat avec TikTok…" },
+  "statusVerifiedDone": { "message": "Terminé et vérifié : $1$ likes supprimés.", "placeholders": { "1": { "content": "$1" } } },
+  "statusPartial": { "message": "Vérification terminée : $1$ supprimés, $2$ encore présents.", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } },
+  "statusOpeningLiked": { "message": "Ouverture de l’onglet des vidéos aimées…" },
+  "statusLikedTabUnavailable": { "message": "Impossible de sélectionner l’onglet des vidéos aimées. Vérifiez que vous êtes connecté et que le profil est chargé." },
+  "statusListError": { "message": "Impossible de charger les likes." },
+  "statusPageScanning": { "message": "Page $1$ : $2$ éléments sur $3$ correspondent au filtre…", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" }, "3": { "content": "$3" } } },
+  "statusScanDone": { "message": "Analyse terminée : $1$ likes sur $2$ correspondent. Rien n’a été supprimé.", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } },
+  "statusBetweenScanPages": { "message": "Pause avant la page d’analyse suivante…" },
+  "statusRateLimited": { "message": "TikTok a temporairement bloqué les requêtes excessives. Attendez environ une heure et réessayez." },
+  "statusSessionRejected": { "message": "TikTok a refusé la session. Rechargez la page, reconnectez-vous si nécessaire et réessayez." },
+  "statusVerificationPage": { "message": "Vérification page $1$ : $2$ likes encore listés…", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } }
 }

@@ -6,17 +6,18 @@
   "step2": {
     "message": "Langkah 2: Kembali ke sini dan klik tombol di bawah untuk memulai proses."
   },
-  "startButton": { "message": "Mulai Menghapus Likes" },
+  "startButton": { "message": "Pindai dan Hapus Like" },
+  "scanButton": { "message": "Analisis tanpa menghapus" },
   "list1": { "message": "Ekstensi akan membuka profil TikTok Anda" },
   "list2": { "message": "Masuk ke tab \"Disukai\"" },
-  "list3": { "message": "Buka setiap video yang disukai" },
-  "list4": { "message": "Hapus like dan lanjut ke berikutnya" },
-  "list5": { "message": "Ulangi sampai semua likes dihapus" },
+  "list3": { "message": "Baca semua like dan terapkan filter opsional" },
+  "list4": { "message": "Konfirmasikan jumlah tepat sebelum penghapusan" },
+  "list5": { "message": "Verifikasi hasil dengan TikTok dan buat laporan" },
   "note": {
-    "message": "Catatan: Jika Anda memiliki banyak video yang disukai, prosesnya bisa memakan waktu. TikTok mungkin memblokir sementara jika terlalu banyak aksi dalam waktu singkat. Tunggu sekitar 1 jam dan coba lagi."
+    "message": "Ekstensi memindai terlebih dahulu dan meminta konfirmasi sebelum menghapus apa pun. Anda dapat menjeda, menghentikan, dan mengunduh laporan terverifikasi."
   },
   "tip": {
-    "message": "Tips: Setelah proses selesai, segarkan profil TikTok Anda untuk memastikan semua likes telah dihapus."
+    "message": "Verifikasi akhir memisahkan penghapusan terkonfirmasi, like yang tersisa, dan kegagalan."
   },
   "linkReposts": { "message": "Hapus Semua Video Repost" },
   "linkFavorite": { "message": "Hapus Semua Video Favorit" },
@@ -74,5 +75,28 @@
     "message": "Dihentikan: $1$ kegagalan berturut-turut. Unduh laporan untuk melihat yang gagal.",
     "placeholders": { "1": { "content": "$1" } }
   },
-  "statusBetweenPages": { "message": "Jeda sebelum halaman berikutnya…" }
+  "statusBetweenPages": { "message": "Jeda sebelum halaman berikutnya…" },
+  "btnStop": { "message": "Hentikan" },
+  "btnCancel": { "message": "Batal" },
+  "btnConfirmRemoval": { "message": "Hapus $1$ like", "placeholders": { "1": { "content": "$1" } } },
+  "statsMatched": { "message": "Cocok" },
+  "statsProcessed": { "message": "Diproses" },
+  "statsVerified": { "message": "Terverifikasi" },
+  "statsRemaining": { "message": "Tersisa" },
+  "statusCancelled": { "message": "Dihentikan oleh pengguna." },
+  "statusNoMatches": { "message": "Like ditemukan, tetapi tidak ada yang cocok dengan filter." },
+  "statusReadyToRemove": { "message": "$1$ dari $2$ like cocok. Konfirmasi untuk menghapus.", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } },
+  "statusRemovingProgress": { "message": "Menghapus $1$ dari $2$…", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } },
+  "statusVerifying": { "message": "Memverifikasi hasil dengan TikTok…" },
+  "statusVerifiedDone": { "message": "Selesai dan terverifikasi: $1$ like dihapus.", "placeholders": { "1": { "content": "$1" } } },
+  "statusPartial": { "message": "Verifikasi selesai: $1$ dihapus, $2$ masih ada.", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } },
+  "statusOpeningLiked": { "message": "Membuka tab Disukai…" },
+  "statusLikedTabUnavailable": { "message": "Tab Disukai tidak dapat dipilih. Pastikan Anda sudah masuk dan profil telah dimuat." },
+  "statusListError": { "message": "Like tidak dapat dimuat." },
+  "statusPageScanning": { "message": "Halaman $1$: $2$ dari $3$ item cocok dengan filter…", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" }, "3": { "content": "$3" } } },
+  "statusScanDone": { "message": "Analisis selesai: $1$ dari $2$ like cocok. Tidak ada yang dihapus.", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } },
+  "statusBetweenScanPages": { "message": "Jeda sebelum halaman pemindaian berikutnya…" },
+  "statusRateLimited": { "message": "TikTok memblokir terlalu banyak permintaan untuk sementara. Tunggu sekitar satu jam lalu coba lagi." },
+  "statusSessionRejected": { "message": "TikTok menolak sesi. Muat ulang halaman, masuk kembali jika perlu, lalu coba lagi." },
+  "statusVerificationPage": { "message": "Verifikasi halaman $1$: $2$ like masih terdaftar…", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } }
 }

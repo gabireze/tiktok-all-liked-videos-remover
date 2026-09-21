@@ -3,6 +3,26 @@
 
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+  async function openLikedTab(timeoutMs = 10000) {
+    const deadline = Date.now() + timeoutMs;
+    let found = false;
+    while (Date.now() < deadline) {
+      const likedTab = document.querySelector('[data-e2e="liked-tab"]');
+      if (likedTab) {
+        found = true;
+        if (likedTab.getAttribute("aria-selected") !== "true") likedTab.click();
+        for (let attempt = 0; attempt < 10; attempt++) {
+          if (likedTab.getAttribute("aria-selected") === "true") {
+            return { found: true, selected: true };
+          }
+          await sleep(200);
+        }
+      }
+      await sleep(500);
+    }
+    return { found, selected: false };
+  }
+
   function getLikeContextAsync() {
     return new Promise(function (resolve) {
       chrome.runtime.sendMessage({ action: "getLikeContext" }, function (response) {
@@ -12,7 +32,11 @@
   }
 
   async function getLikedItems(cursor, secUid) {
-    if (!secUid) return null;
+    if (!secUid) {
+      const err = new Error("Account identifier is missing");
+      err.code = "NO_ACCOUNT_CONTEXT";
+      throw err;
+    }
 
     const params = new URLSearchParams({
       aid: "1988",
@@ -28,20 +52,32 @@
     const res = await fetch(url, {
       method: "GET",
       headers: { accept: "*/*" },
+      credentials: "same-origin",
     });
 
     const raw = await res.text();
+    if (!res.ok) {
+      const err = new Error(`HTTP ${res.status}`);
+      err.code = res.status === 429 ? "RATE_LIMITED" : (res.status === 401 || res.status === 403 ? "SESSION_REJECTED" : "HTTP_ERROR");
+      err.httpStatus = res.status;
+      throw err;
+    }
     let json;
     try {
       json = JSON.parse(raw);
     } catch (e) {
-      console.error("Resposta não é JSON válido:", e, raw.slice(0, 200));
-      return null;
+      const err = new Error("TikTok returned a non-JSON response");
+      err.code = "INVALID_JSON";
+      err.httpStatus = res.status;
+      throw err;
     }
 
     if (json.status_code !== 0) {
-      console.error("getLikedItems erro:", json);
-      return null;
+      const err = new Error(json.status_msg || `TikTok status ${json.status_code}`);
+      err.code = "TIKTOK_REJECTED";
+      err.tiktokStatus = json.status_code;
+      err.httpStatus = res.status;
+      throw err;
     }
 
     const items = (json.itemList || []).map((e) => ({
@@ -55,15 +91,12 @@
       hasMore: !!json.hasMore,
       nextCursor: json.cursor != null ? String(json.cursor) : null,
       items,
+      diagnostic: {
+        httpStatus: res.status,
+        tiktokStatus: json.status_code,
+        itemCount: items.length,
+      },
     };
-  }
-
-  function getCookie(name) {
-    try {
-      const parts = ("; " + (document.cookie || "")).split("; " + name + "=");
-      if (parts.length === 2) return (parts[1].split(";")[0] || "").trim();
-    } catch (e) {}
-    return "";
   }
 
   /** Pede ao background para injetar o listener de remoção no contexto da página (via executeScript MAIN),
@@ -87,10 +120,24 @@
   function removeLikeItemInPage(awemeId) {
     return ensurePageRemoveScript().then(function () {
       return new Promise(function (resolve, reject) {
+        const timeoutId = setTimeout(function () {
+          window.removeEventListener("tlr-remove-like-result", handler);
+          const err = new Error("Removal request timed out after 30 seconds");
+          err.code = "TIMEOUT";
+          reject(err);
+        }, 30000);
         var handler = function (e) {
           if (!e.detail || e.detail.awemeId !== awemeId) return;
+          clearTimeout(timeoutId);
           window.removeEventListener("tlr-remove-like-result", handler);
-          if (e.detail.success) resolve(true); else reject(new Error(e.detail.error || "Remove failed"));
+          if (e.detail.success) {
+            resolve({ success: true, httpStatus: e.detail.httpStatus || null });
+          } else {
+            const err = new Error(e.detail.error || "Remove failed");
+            err.code = e.detail.errorCode || "REMOVE_FAILED";
+            err.httpStatus = e.detail.httpStatus || null;
+            reject(err);
+          }
         };
         window.addEventListener("tlr-remove-like-result", handler);
         window.dispatchEvent(new CustomEvent("tlr-remove-like", { detail: { awemeId: awemeId } }));
@@ -98,123 +145,118 @@
     });
   }
 
-  function getRegionFromLocale() {
-    try {
-      const lang = (navigator.language || navigator.userLanguage || "").toLowerCase();
-      if (lang.startsWith("pt")) return "BR";
-      if (lang.startsWith("es")) return "ES";
-      if (lang.startsWith("en")) return "US";
-      if (lang.startsWith("fr")) return "FR";
-      if (lang.startsWith("de")) return "DE";
-    } catch (e) {}
-    return "US";
+  function cancelActiveRemoval() {
+    window.dispatchEvent(new CustomEvent("tlr-cancel-remove"));
   }
 
-  async function removeLikeItem(awemeId, context, opts, retries = 2) {
-    if (typeof opts !== "object" || opts === null) {
-      retries = typeof opts === "number" ? opts : 2;
-      opts = {};
+  async function waitUntilRunnable() {
+    while (panelState.paused && !panelState.cancelled) await sleep(150);
+    return !panelState.cancelled;
+  }
+
+  async function cancellableSleep(ms) {
+    const deadline = Date.now() + Math.max(0, ms);
+    while (Date.now() < deadline) {
+      if (!(await waitUntilRunnable())) return false;
+      await sleep(Math.min(150, Math.max(0, deadline - Date.now())));
     }
-    retries = opts.retries ?? retries;
-    if (!context || !context.csrfToken) {
-      throw new Error("csrfToken não encontrado");
-    }
+    return !panelState.cancelled;
+  }
 
-    const userAgent = context.userAgent || navigator.userAgent || "";
-    const odinId = context.odinId || "";
-    const region = getRegionFromLocale();
-    const verifyFp = getCookie("s_v_web_id");
-    const msToken = getCookie("msToken");
-    const screenW = typeof window.screen !== "undefined" ? window.screen.width : 1536;
-    const screenH = typeof window.screen !== "undefined" ? window.screen.height : 864;
-    const refererUrl = opts.videoUrl || window.location.href || "https://www.tiktok.com/";
+  function isRetryableRemovalError(error) {
+    if (!error) return false;
+    if (error.code === "NETWORK_ERROR" || error.code === "TIMEOUT") return true;
+    return error.code === "HTTP_ERROR" && Number(error.httpStatus) >= 500;
+  }
 
-    const params = new URLSearchParams({
-      aid: "1988",
-      app_language: "en",
-      app_name: "tiktok_web",
-      aweme_id: String(awemeId),
-      browser_language: "en",
-      browser_name: "Mozilla",
-      browser_online: "true",
-      browser_platform: "Win32",
-      browser_version: userAgent,
-      channel: "tiktok_web",
-      cookie_enabled: "true",
-      data_collection_enabled: "true",
-      device_id: "7469968254971495954",
-      device_platform: "web_pc",
-      focus_state: "true",
-      from_page: "video",
-      history_len: "2",
-      is_fullscreen: "false",
-      is_page_visible: "true",
-      odinId: odinId,
-      os: "windows",
-      priority_region: region,
-      referer: "",
-      region: region,
-      screen_height: String(screenH),
-      screen_width: String(screenW),
-      type: "0",
-      tz_name: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      user_is_login: "true",
-      webcast_language: "en",
-    });
-    if (verifyFp) params.set("verifyFp", verifyFp);
-    if (msToken) params.set("msToken", msToken);
-
-    const url = `https://www.tiktok.com/api/commit/item/digg/?${params.toString()}`;
-    let lastErr;
-    for (let attempt = 1; attempt <= retries; attempt++) {
+  async function removeLikeWithRetry(item, maxAttempts = 3) {
+    let lastError;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      if (!(await waitUntilRunnable())) {
+        const cancelled = new Error("Cancelled");
+        cancelled.code = "CANCELLED";
+        throw cancelled;
+      }
       try {
-        const res = await fetch(url, {
-          method: "POST",
-          headers: {
-            accept: "*/*",
-            "accept-language": (navigator.language || "en") + ",en;q=0.9",
-            "content-type": "application/x-www-form-urlencoded",
-            "origin": "https://www.tiktok.com",
-            "referer": refererUrl,
-            "tt-csrf-token": context.csrfToken,
-          },
-          credentials: "same-origin",
-          body: "",
-        });
-
-        const raw = await res.text();
-        if (res.status === 403 || res.status === 401) {
-          throw new Error("HTTP " + res.status + " (sessão/CSRF inválido?). Recarregue a página do TikTok e tente de novo.");
+        const result = await removeLikeItemInPage(item.id);
+        return { ...result, attempts: attempt };
+      } catch (error) {
+        lastError = error;
+        if (error.code === "CANCELLED" || !isRetryableRemovalError(error) || attempt === maxAttempts) throw error;
+        const backoffMs = 1000 * Math.pow(2, attempt - 1) + Math.floor(Math.random() * 500);
+        if (!(await cancellableSleep(backoffMs))) {
+          const cancelled = new Error("Cancelled");
+          cancelled.code = "CANCELLED";
+          throw cancelled;
         }
-        if (!res.ok) {
-          const preview = raw.trim().slice(0, 80).replace(/\s+/g, " ");
-          throw new Error("HTTP " + res.status + (preview ? ": " + preview : ""));
-        }
-
-        if (!raw || !raw.trim()) {
-          return true;
-        }
-
-        let json;
-        try {
-          json = JSON.parse(raw);
-        } catch (e) {
-          const preview = raw.trim().slice(0, 80).replace(/\s+/g, " ");
-          const hint = /^\s*</.test(raw) ? " (página HTML?)" : "";
-          throw new Error("Resposta não é JSON (HTTP " + res.status + ")" + hint + (preview ? ": " + preview : ""));
-        }
-
-        if (json.status_code !== 0) {
-          throw new Error("removeLikeItem erro: " + JSON.stringify(json));
-        }
-
-        return true;
-      } catch (e) {
-        lastErr = e;
-        if (attempt < retries) await sleep(2000);
       }
     }
-    throw lastErr;
+    throw lastError;
+  }
+
+  async function collectAllLikedItems(secUid, options = {}) {
+    const diagnostics = options.diagnostics || [];
+    const pagePauseMs = Math.max(0, options.pagePauseMs || 0);
+    const seenCursors = new Set();
+    const seenItemIds = new Set();
+    const items = [];
+    let cursor = "0";
+    let page = 1;
+
+    while (true) {
+      if (!(await waitUntilRunnable())) {
+        const cancelled = new Error("Cancelled");
+        cancelled.code = "CANCELLED";
+        throw cancelled;
+      }
+      if (seenCursors.has(cursor) || page > 1000) {
+        const error = new Error("Pagination cursor repeated");
+        error.code = "PAGINATION_LOOP";
+        diagnostics.push({ page, errorCode: error.code, cursorPresent: !!cursor });
+        throw error;
+      }
+      seenCursors.add(cursor);
+
+      let result;
+      try {
+        result = await getLikedItems(cursor, secUid);
+        diagnostics.push({
+          page,
+          cursorPresent: !!cursor,
+          httpStatus: result.diagnostic.httpStatus,
+          tiktokStatus: result.diagnostic.tiktokStatus,
+          itemCount: result.diagnostic.itemCount,
+        });
+      } catch (error) {
+        diagnostics.push({
+          page,
+          cursorPresent: !!cursor,
+          errorCode: error.code || "LIST_FAILED",
+          httpStatus: error.httpStatus || null,
+          tiktokStatus: error.tiktokStatus ?? null,
+        });
+        throw error;
+      }
+
+      const uniqueItems = (result.items || []).filter((item) => {
+        if (!item.id || seenItemIds.has(item.id)) return false;
+        seenItemIds.add(item.id);
+        return true;
+      });
+      items.push(...uniqueItems);
+      if (options.onPage) await options.onPage({ page, uniqueItems, total: items.length, result });
+
+      if (!result.hasMore || !result.nextCursor || result.items.length === 0) break;
+      cursor = result.nextCursor;
+      page++;
+      if (!(await cancellableSleep(pagePauseMs))) {
+        const cancelled = new Error("Cancelled");
+        cancelled.code = "CANCELLED";
+        throw cancelled;
+      }
+    }
+
+    return { items, pages: page, diagnostics };
   }
 
   function parseKeywords(str) {
@@ -260,7 +302,9 @@
       <div class="tlr-status" id="tlr-status">${t.statusPreparing || "Preparing…"}</div>
       <div class="tlr-stats" id="tlr-stats"></div>
       <div class="tlr-actions">
+        <button type="button" class="tlr-btn tlr-confirm" id="tlr-confirm-btn" hidden>${t.btnConfirmRemoval || "Confirm removal"}</button>
         <button type="button" class="tlr-btn tlr-pause" id="tlr-pause-btn">${t.btnPause || "Pause"}</button>
+        <button type="button" class="tlr-btn tlr-stop" id="tlr-stop-btn">${t.btnStop || "Stop"}</button>
         <button type="button" class="tlr-btn tlr-download" id="tlr-download-btn" disabled>${t.btnDownloadReport || "Download report"}</button>
       </div>
     `;
@@ -304,6 +348,10 @@
       .tlr-pause:hover { background: #ff1a5c; }
       .tlr-pause.resumed { background: #00f2ea; color: #0d0d0d; }
       .tlr-pause.resumed:hover { background: #33f5ed; }
+      .tlr-confirm { background: #ff0050; color: #fff; flex: 1; }
+      .tlr-confirm:hover:not(:disabled) { background: #ff1a5c; }
+      .tlr-stop { background: #3a1f28; color: #ff9bb8; border: 1px solid #673142; }
+      .tlr-stop:hover:not(:disabled) { background: #4a2532; }
       .tlr-download { background: #1c1c1c; color: #f2f2f2; border: 1px solid #2a2a2a; }
       .tlr-download:hover:not(:disabled) { background: #252525; }
       .tlr-download:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -376,57 +424,106 @@
     const statusEl = panel.querySelector("#tlr-status");
     const statsEl = panel.querySelector("#tlr-stats");
     const pauseBtn = panel.querySelector("#tlr-pause-btn");
+    const confirmBtn = panel.querySelector("#tlr-confirm-btn");
+    const stopBtn = panel.querySelector("#tlr-stop-btn");
     const downloadBtn = panel.querySelector("#tlr-download-btn");
 
     if (statusEl) statusEl.textContent = state.status || "—";
     if (statsEl) {
       const parts = [];
       if (state.pages != null) parts.push(`${t.statsPages || "Pages"}: ${state.pages}`);
-      if (state.removed != null) parts.push(`${t.statsRemoved || "Removed"}: ${state.removed}`);
+      if (state.processed != null && state.processed > 0) parts.push(`${t.statsProcessed || "Processed"}: ${state.processed}`);
       if (state.failed != null && state.failed > 0) parts.push(`${t.statsFailed || "Failed"}: ${state.failed}`);
       if (state.totalListed != null) parts.push(`${t.statsListed || "Listed"}: ${state.totalListed}`);
+      if (state.matched != null) parts.push(`${t.statsMatched || "Matched"}: ${state.matched}`);
+      if (state.verifiedRemoved != null) parts.push(`${t.statsVerified || "Verified"}: ${state.verifiedRemoved}`);
+      if (state.stillPresent != null && state.stillPresent > 0) parts.push(`${t.statsRemaining || "Remaining"}: ${state.stillPresent}`);
       statsEl.textContent = parts.length ? parts.join(" · ") : "";
     }
     if (pauseBtn) {
       pauseBtn.textContent = state.paused ? (t.btnResume || "Resume") : (t.btnPause || "Pause");
       pauseBtn.classList.toggle("resumed", !!state.paused);
       pauseBtn.disabled = !!state.disablePause;
+      pauseBtn.hidden = !!state.finished || !!state.cancelled || !!state.awaitingConfirmation;
+    }
+    if (confirmBtn) {
+      confirmBtn.hidden = !state.awaitingConfirmation || !!state.finished || !!state.cancelled;
+      confirmBtn.disabled = !state.awaitingConfirmation;
+      confirmBtn.textContent = substitutePlaceholders(t.btnConfirmRemoval, [state.matched || 0]) || `Remove ${state.matched || 0} likes`;
+    }
+    if (stopBtn) {
+      stopBtn.disabled = !!state.finished || !!state.cancelled;
+      stopBtn.hidden = !!state.finished || !!state.cancelled;
+      stopBtn.textContent = state.awaitingConfirmation ? (t.btnCancel || "Cancel") : (t.btnStop || "Stop");
     }
     if (downloadBtn) {
       downloadBtn.disabled = !state.reportReady;
       const baseLabel = t.btnDownloadReport || "Download report";
-      const total = (state.removed || 0) + (state.failed || 0);
+      const total = state.matched || (state.removed || 0) + (state.failed || 0);
       downloadBtn.textContent = state.reportReady && total > 0
-        ? `${baseLabel} (${state.removed || 0}${state.failed > 0 ? ", " + state.failed + " failed" : ""})`
+        ? `${baseLabel} (${total})`
         : baseLabel;
     }
   }
 
-  function buildReport(removedItems, failedItems, format) {
-    const removed = removedItems && removedItems.length ? removedItems : [];
-    const failed = failedItems && failedItems.length ? failedItems : [];
-    if (format === "csv") {
-      const headers = ["id", "authorName", "desc", "url", "status"];
-      const row = (i, status) => [
-        i.id,
-        i.authorName,
-        (i.desc || "").replace(/\s+/g, " ").replace(/"/g, '""'),
-        i.url,
-        status,
-      ];
-      const rows = removed.map((i) => row(i, "removed")).concat(failed.map((i) => row(i, "failed")));
-      return headers.join(",") + "\n" + rows.map((r) => r.map((v) => `"${v}"`).join(",")).join("\n");
-    }
-    return JSON.stringify({ removed, failed }, null, 2);
+  function sanitizeCsvCell(value) {
+    let text = String(value == null ? "" : value).replace(/\s+/g, " ");
+    if (/^[=+\-@]/.test(text)) text = "'" + text;
+    return `"${text.replace(/"/g, '""')}"`;
   }
 
-  function downloadReport(content, format) {
+  function buildReport(state, config, format) {
+    const matched = state.reportScannedItems || [];
+    const requestSucceeded = state.reportItems || [];
+    const failed = state.reportFailedItems || [];
+    const verifiedRemoved = state.reportVerifiedItems || [];
+    const stillPresent = state.reportStillPresentItems || [];
+    const failedIds = new Set(failed.map((item) => item.id));
+    const verifiedIds = new Set(verifiedRemoved.map((item) => item.id));
+    const remainingIds = new Set(stillPresent.map((item) => item.id));
+    const requestSucceededIds = new Set(requestSucceeded.map((item) => item.id));
+    const statusFor = (item) => {
+      if (verifiedIds.has(item.id)) return "verified_removed";
+      if (remainingIds.has(item.id)) return "still_present";
+      if (failedIds.has(item.id)) return "request_failed";
+      if (requestSucceededIds.has(item.id)) return "request_succeeded_unverified";
+      return config.dryRun ? "matched" : "not_processed";
+    };
+    const metadata = {
+      extensionVersion: chrome.runtime.getManifest().version,
+      startedAt: state.startedAt || null,
+      finishedAt: state.finishedAt || null,
+      mode: config.dryRun ? "analysis" : "removal",
+      keywordsFilter: config.keywordsFilter || "",
+      intervalMode: config.requestIntervalMode,
+      intervalRange: config.requestIntervalRange,
+      intervalSet: config.requestIntervalSet,
+      pagePauseSeconds: config.pagePauseSeconds,
+      cancelled: !!state.cancelled,
+    };
+    const summary = {
+      listed: state.totalListed || 0,
+      matched: matched.length,
+      requestsSucceeded: requestSucceeded.length,
+      requestFailures: failed.length,
+      verifiedRemoved: verifiedRemoved.length,
+      stillPresent: stillPresent.length,
+    };
+    if (format === "csv") {
+      const headers = ["id", "authorName", "desc", "url", "status"];
+      const rows = matched.map((item) => [item.id, item.authorName, item.desc || "", item.url, statusFor(item)]);
+      return headers.map(sanitizeCsvCell).join(",") + "\n" + rows.map((row) => row.map(sanitizeCsvCell).join(",")).join("\n");
+    }
+    return JSON.stringify({ metadata, summary, items: matched.map((item) => ({ ...item, status: statusFor(item) })), diagnostics: state.diagnostics || {} }, null, 2);
+  }
+
+  function downloadReport(content, format, mode) {
     const ext = format === "csv" ? "csv" : "json";
     const mime = format === "csv" ? "text/csv;charset=utf-8" : "application/json;charset=utf-8";
     const blob = new Blob([content], { type: mime });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `tiktok-likes-removed-${Date.now()}.${ext}`;
+    a.download = `tiktok-likes-${mode === "analysis" ? "analysis" : "removal-report"}-${Date.now()}.${ext}`;
     a.click();
     URL.revokeObjectURL(a.href);
   }
@@ -437,13 +534,26 @@
     status: "Preparando...",
     pages: 0,
     removed: 0,
+    processed: 0,
     failed: 0,
+    matched: 0,
+    verifiedRemoved: null,
+    stillPresent: null,
     totalListed: 0,
     paused: false,
     reportReady: false,
     reportItems: [],
     reportFailedItems: [],
+    reportScannedItems: [],
+    reportVerifiedItems: [],
+    reportStillPresentItems: [],
+    diagnostics: { listing: [], removal: [] },
     reportFormat: "json",
+    cancelled: false,
+    finished: false,
+    awaitingConfirmation: false,
+    startedAt: null,
+    finishedAt: null,
   };
 
   async function runRemoval(config) {
@@ -454,34 +564,84 @@
       return;
     }
     const keywordList = parseKeywords(config.keywordsFilter || "");
-    panelState.reportFormat = config.exportFileType || "json";
-    panelState.reportItems = [];
-    panelState.reportFailedItems = [];
-    panelState.removed = 0;
-    panelState.failed = 0;
-    panelState.disablePause = false;
-    panelState.pages = 0;
-    panelState.totalListed = 0;
-    panelState.paused = false;
-    panelState.reportReady = false;
+    Object.assign(panelState, {
+      status: "Preparing…",
+      pages: 0,
+      removed: 0,
+      processed: 0,
+      failed: 0,
+      matched: 0,
+      verifiedRemoved: null,
+      stillPresent: null,
+      totalListed: 0,
+      paused: false,
+      disablePause: false,
+      reportReady: false,
+      reportItems: [],
+      reportFailedItems: [],
+      reportScannedItems: [],
+      reportVerifiedItems: [],
+      reportStillPresentItems: [],
+      diagnostics: { listing: [], removal: [], verification: [] },
+      reportFormat: config.exportFileType || "json",
+      cancelled: false,
+      finished: false,
+      awaitingConfirmation: false,
+      startedAt: new Date().toISOString(),
+      finishedAt: null,
+    });
 
     const pauseBtn = panel.querySelector("#tlr-pause-btn");
+    const confirmBtn = panel.querySelector("#tlr-confirm-btn");
+    const stopBtn = panel.querySelector("#tlr-stop-btn");
     const downloadBtn = panel.querySelector("#tlr-download-btn");
     const closeBtn = panel.querySelector(".tlr-close");
 
     const t0 = config.i18n || {};
+    let confirmationResolver = null;
     pauseBtn.onclick = () => {
+      if (panelState.finished || panelState.awaitingConfirmation) return;
       panelState.paused = !panelState.paused;
       panelState.status = panelState.paused ? (t0.statusPaused || "Paused") : (t0.statusResuming || "Resuming…");
       updatePanel(panel, panelState, t0);
     };
 
     downloadBtn.onclick = () => {
-      const content = buildReport(panelState.reportItems, panelState.reportFailedItems || [], panelState.reportFormat);
-      downloadReport(content, panelState.reportFormat);
+      const content = buildReport(panelState, config, panelState.reportFormat);
+      downloadReport(content, panelState.reportFormat, config.dryRun ? "analysis" : "removal");
     };
 
-    closeBtn.onclick = () => panel.remove();
+    const stopRun = () => {
+      if (panelState.finished || panelState.cancelled) return;
+      panelState.cancelled = true;
+      panelState.paused = false;
+      panelState.disablePause = true;
+      panelState.awaitingConfirmation = false;
+      panelState.finished = true;
+      panelState.finishedAt = new Date().toISOString();
+      panelState.status = t0.statusCancelled || "Stopped by user.";
+      panelState.reportReady = true;
+      cancelActiveRemoval();
+      if (confirmationResolver) {
+        confirmationResolver(false);
+        confirmationResolver = null;
+      }
+      updatePanel(panel, panelState, t0);
+    };
+    if (confirmBtn) {
+      confirmBtn.onclick = () => {
+        if (!panelState.awaitingConfirmation || !confirmationResolver) return;
+        panelState.awaitingConfirmation = false;
+        const resolve = confirmationResolver;
+        confirmationResolver = null;
+        resolve(true);
+      };
+    }
+    if (stopBtn) stopBtn.onclick = stopRun;
+    closeBtn.onclick = () => {
+      stopRun();
+      panel.remove();
+    };
 
     const t = config.i18n || {};
     const setStatus = (s) => {
@@ -489,12 +649,27 @@
       updatePanel(panel, panelState, t);
     };
 
+    const finish = (status) => {
+      panelState.status = status;
+      panelState.finished = true;
+      panelState.awaitingConfirmation = false;
+      panelState.disablePause = true;
+      panelState.reportReady = true;
+      panelState.finishedAt = new Date().toISOString();
+      updatePanel(panel, panelState, t);
+    };
+
     try {
       if (config.notLoggedInRedirect) {
-        panelState.paused = true;
-        panelState.disablePause = true;
-        setStatus(t.statusErrorRedirectedForyou || "You were redirected to For You because you're not logged in. Please log in, then open the extension and click Start again.");
-        updatePanel(panel, panelState, t);
+        finish(t.statusErrorRedirectedForyou || "You were redirected to For You because you're not logged in. Please log in, then open the extension and click Start again.");
+        return;
+      }
+
+      setStatus(t.statusOpeningLiked || "Opening the Liked tab…");
+      const likedTabResult = await openLikedTab();
+      panelState.diagnostics.likedTab = likedTabResult;
+      if (!likedTabResult.selected) {
+        finish(t.statusLikedTabUnavailable || "Could not open the Liked tab. Reload TikTok and try again.");
         return;
       }
 
@@ -503,117 +678,158 @@
       var secUid = likeContext.secUid || null;
       if (!secUid) {
         for (var i = 0; i < 12; i++) {
-          await sleep(1500);
+          if (!(await cancellableSleep(1500))) return;
           likeContext = await getLikeContextAsync();
           secUid = likeContext.secUid || null;
           if (secUid) break;
         }
       }
+      panelState.diagnostics.context = {
+        source: likeContext.contextSource || "unknown",
+        hasAccountId: !!likeContext.secUid,
+        hasCsrfToken: !!likeContext.csrfToken,
+        hasDeviceId: !!likeContext.deviceId,
+        region: likeContext.region || "",
+        language: likeContext.language || "",
+      };
       if (!secUid) {
         var onForyou = /\/foryou(\?|$)/i.test(window.location.href);
         var msg = onForyou
           ? (t.statusErrorRedirectedForyou || "You were redirected to For You because you're not logged in. Please log in, then open the extension and click Start again.")
           : (t.statusErrorNoAccount || "Could not identify your account.");
-        panelState.paused = true;
-        panelState.disablePause = true;
-        setStatus(msg);
-        updatePanel(panel, panelState, t);
+        finish(msg);
         return;
       }
 
       if (!likeContext.csrfToken) {
-        panelState.paused = true;
-        panelState.disablePause = true;
-        setStatus(t.statusErrorNoAccount || "Could not get session (csrf). Reload TikTok and try again.");
-        updatePanel(panel, panelState, t);
+        finish(t.statusErrorNoAccount || "Could not get session (csrf). Reload TikTok and try again.");
         return;
       }
 
-      let cursor = "0";
-      let page = 1;
       const pagePauseMs = Math.max(0, (config.pagePauseSeconds ?? 5)) * 1000;
+      setStatus(t.statusListing || "Listing all likes before making changes…");
+      const initialScan = await collectAllLikedItems(secUid, {
+        diagnostics: panelState.diagnostics.listing,
+        pagePauseMs,
+        onPage({ page, uniqueItems, total }) {
+          panelState.pages = page;
+          panelState.totalListed = total;
+          const pageMatches = uniqueItems.filter((item) => matchesKeywords(item.desc, keywordList)).length;
+          const message = substitutePlaceholders(t.statusPageScanning, [page, pageMatches, uniqueItems.length])
+            || `Page ${page}: ${pageMatches} of ${uniqueItems.length} items match the filter…`;
+          setStatus(message);
+        },
+      });
 
-      setStatus(t.statusListing || "Listing likes…");
+      panelState.pages = initialScan.pages;
+      panelState.totalListed = initialScan.items.length;
+      const candidates = initialScan.items.filter((item) => matchesKeywords(item.desc, keywordList));
+      panelState.reportScannedItems = candidates;
+      panelState.matched = candidates.length;
+      panelState.reportReady = true;
+      updatePanel(panel, panelState, t);
 
-      while (true) {
-        while (panelState.paused) await sleep(500);
+      if (initialScan.items.length === 0) {
+        finish(t.statusNone || "No likes found.");
+        return;
+      }
+      if (candidates.length === 0) {
+        finish(t.statusNoMatches || "Likes were found, but none match the selected filter.");
+        return;
+      }
+      if (config.dryRun) {
+        finish(substitutePlaceholders(t.statusScanDone, [candidates.length, initialScan.items.length]) || `Analysis complete: ${candidates.length} of ${initialScan.items.length} likes match.`);
+        return;
+      }
 
-        const result = await getLikedItems(cursor, secUid);
-        if (!result || !result.items || result.items.length === 0) {
-          setStatus(t.statusNone || "No likes found.");
-          panelState.reportReady = true;
-          updatePanel(panel, panelState, t);
-          break;
-        }
+      panelState.awaitingConfirmation = true;
+      setStatus(substitutePlaceholders(t.statusReadyToRemove, [candidates.length, initialScan.items.length])
+        || `${candidates.length} of ${initialScan.items.length} likes match. Confirm to start removing.`);
+      const confirmed = await new Promise((resolve) => { confirmationResolver = resolve; });
+      if (!confirmed || panelState.cancelled) return;
+      updatePanel(panel, panelState, t);
 
-        panelState.pages = page;
-        panelState.totalListed = (panelState.totalListed || 0) + result.items.length;
-        const candidates = result.items.filter((item) => matchesKeywords(item.desc, keywordList));
-        const statusMsg = substitutePlaceholders(t.statusPageRemoving, [page, candidates.length, result.items.length])
-          || `Page ${page}: removing ${candidates.length} of ${result.items.length}…`;
-        updatePanel(panel, { ...panelState, status: statusMsg }, t);
-
-        let consecutiveFailures = 0;
-        let stoppedDueToFailures = false;
-
-        for (const item of candidates) {
-          while (panelState.paused) await sleep(500);
-
-          try {
-            await removeLikeItemInPage(item.id);
-            consecutiveFailures = 0;
-            panelState.removed = (panelState.removed || 0) + 1;
-            panelState.reportItems.push(item);
-            panelState.reportReady = true;
-            updatePanel(panel, { ...panelState, status: `${item.authorName} – ${(item.desc || "").slice(0, 25)}…` }, t);
-          } catch (e) {
-            console.error("Erro removendo like", item.id, e);
-            consecutiveFailures++;
-            panelState.failed = (panelState.failed || 0) + 1;
-            panelState.reportFailedItems = panelState.reportFailedItems || [];
-            panelState.reportFailedItems.push(item);
-            panelState.reportReady = true;
-            setStatus(substitutePlaceholders(t.statusErrorRemove, [item.id]) || `Error removing ${item.id}`);
-            updatePanel(panel, panelState, t);
-            if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
-              panelState.paused = true;
-              panelState.disablePause = true;
-              setStatus(substitutePlaceholders(t.statusStoppedFailures, [MAX_CONSECUTIVE_FAILURES])
-                || `Stopped: ${MAX_CONSECUTIVE_FAILURES} consecutive failures. Download report to see which failed.`);
-              updatePanel(panel, panelState, t);
-              stoppedDueToFailures = true;
-              break;
-            }
+      let consecutiveFailures = 0;
+      let fatalError = null;
+      for (let index = 0; index < candidates.length; index++) {
+        const item = candidates[index];
+        if (!(await waitUntilRunnable())) break;
+        setStatus(substitutePlaceholders(t.statusRemovingProgress, [index + 1, candidates.length]) || `Removing ${index + 1} of ${candidates.length}…`);
+        try {
+          const removalResult = await removeLikeWithRetry(item);
+          panelState.diagnostics.removal.push({ id: item.id, success: true, httpStatus: removalResult.httpStatus || null, attempts: removalResult.attempts });
+          panelState.reportItems.push(item);
+          panelState.processed = panelState.reportItems.length + panelState.reportFailedItems.length;
+          consecutiveFailures = 0;
+        } catch (error) {
+          if (error.code === "CANCELLED") break;
+          panelState.diagnostics.removal.push({ id: item.id, success: false, errorCode: error.code || "REMOVE_FAILED", httpStatus: error.httpStatus || null });
+          panelState.reportFailedItems.push(item);
+          panelState.failed = panelState.reportFailedItems.length;
+          panelState.processed = panelState.reportItems.length + panelState.reportFailedItems.length;
+          consecutiveFailures++;
+          if (error.code === "RATE_LIMITED" || error.code === "SESSION_REJECTED" || consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+            fatalError = error;
+            break;
           }
-
-          const delay = randomDelayMs(config);
-          await sleep(delay);
         }
+        updatePanel(panel, panelState, t);
+        if (index < candidates.length - 1 && !(await cancellableSleep(randomDelayMs(config)))) break;
+      }
 
-        if (stoppedDueToFailures) {
-          panelState.paused = true;
-          panelState.disablePause = true;
-          updatePanel(panel, panelState, t);
-          break;
-        }
+      if (panelState.cancelled) return;
+      if (fatalError && fatalError.code === "RATE_LIMITED") {
+        finish(t.statusRateLimited || "TikTok temporarily limited requests. Wait before trying again.");
+        return;
+      }
+      if (fatalError && fatalError.code === "SESSION_REJECTED") {
+        finish(t.statusSessionRejected || "TikTok rejected the session. Reload the page and try again.");
+        return;
+      }
 
-        if (!result.hasMore || !result.nextCursor) {
-          setStatus(t.statusDone || "Done! All likes processed.");
-          panelState.reportReady = true;
-          updatePanel(panel, panelState, t);
-          break;
-        }
+      setStatus(t.statusVerifying || "Verifying the result with TikTok…");
+      if (!(await cancellableSleep(1200))) return;
+      let remainingIds = new Set();
+      for (let verificationAttempt = 1; verificationAttempt <= 3; verificationAttempt++) {
+        panelState.diagnostics.verification.push({ attempt: verificationAttempt, marker: "start" });
+        const verification = await collectAllLikedItems(secUid, {
+          diagnostics: panelState.diagnostics.verification,
+          pagePauseMs: Math.min(pagePauseMs, 2000),
+          onPage({ page, total }) {
+            setStatus(substitutePlaceholders(t.statusVerificationPage, [page, total]) || `Verification page ${page}: ${total} likes still listed…`);
+          },
+        });
+        remainingIds = new Set(verification.items.map((item) => item.id));
+        const targetStillPresent = candidates.some((item) => remainingIds.has(item.id));
+        if (!targetStillPresent || verificationAttempt === 3) break;
+        if (!(await cancellableSleep(verificationAttempt * 2000))) return;
+      }
+      panelState.reportVerifiedItems = candidates.filter((item) => !remainingIds.has(item.id));
+      panelState.reportStillPresentItems = candidates.filter((item) => remainingIds.has(item.id));
+      panelState.verifiedRemoved = panelState.reportVerifiedItems.length;
+      panelState.removed = panelState.verifiedRemoved;
+      panelState.stillPresent = panelState.reportStillPresentItems.length;
+      panelState.reportReady = true;
 
-        cursor = result.nextCursor;
-        page++;
-        setStatus((t.statusBetweenPages || "Pause before next page…") + " " + page);
-        await sleep(pagePauseMs);
+      if (panelState.stillPresent === 0) {
+        finish(substitutePlaceholders(t.statusVerifiedDone, [panelState.verifiedRemoved]) || `Done and verified: ${panelState.verifiedRemoved} likes removed.`);
+      } else {
+        finish(substitutePlaceholders(t.statusPartial, [panelState.verifiedRemoved, panelState.stillPresent])
+          || `Finished with verification: ${panelState.verifiedRemoved} removed, ${panelState.stillPresent} still present.`);
       }
     } catch (err) {
-      console.error("TikTok Likes Remover:", err);
-      if (panel && panel.querySelector("#tlr-status")) {
-        panel.querySelector("#tlr-status").textContent = "Erro: " + (err.message || String(err));
+      if (err && err.code === "CANCELLED") {
+        if (!panelState.finished) stopRun();
+      } else {
+        console.error("TikTok Likes Remover:", err);
+        const detail = [err && err.code, err && err.httpStatus ? `HTTP ${err.httpStatus}` : ""].filter(Boolean).join(" · ");
+        finish((t.statusListError || "Could not complete the operation.") + (detail ? ` (${detail})` : ""));
       }
+    } finally {
+      panelState.finishedAt = panelState.finishedAt || new Date().toISOString();
+      panelState.awaitingConfirmation = false;
+      updatePanel(panel, panelState, t);
+      try { chrome.runtime.sendMessage({ action: "runFinished" }); } catch (e) {}
     }
   }
 
