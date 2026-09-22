@@ -23,7 +23,7 @@ The storage permission is used to save the user's local popup settings and a tem
 
 --- Justificativa de Permissão do host (Justification for host permission) ---
 
-The host permission https://*.tiktok.com/* is required because the extension only works on TikTok's website. The content script must run on TikTok pages to scan liked videos (api/favorite/item_list), perform the confirmed remove-like requests (api/commit/item/digg), and scan again for verification. No other domains are accessed. All communication is between the user's browser and TikTok using their existing session; no data is sent to the developer or any third party.
+The host permission https://www.tiktok.com/* is required because the extension only works on TikTok's website. The content script must run on TikTok pages to scan liked videos (api/favorite/item_list), perform the confirmed remove-like requests (api/commit/item/digg), and scan again for verification. No other domains are accessed. All communication is between the user's browser and TikTok using their existing session; no data is sent to the developer or any third party.
 
 
 --- Código remoto (Remote code) ---

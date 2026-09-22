@@ -45,7 +45,7 @@ This extension does **not** use any third-party analytics, tracking scripts, or 
 
 The extension uses the following Chrome permissions:
 
-- **`host_permissions`** (`https://*.tiktok.com/*`): Required so the extension can run only on TikTok pages. No other domains are accessed.
+- **`host_permissions`** (`https://www.tiktok.com/*`): Required so the extension can run only on TikTok pages. No other domains are accessed.
 - **`scripting`**: Needed to inject and run the content script on TikTok pages, to run the remove-like request in the page context, and to read session data required to identify your account.
 - **`tabs`**: Used to open your TikTok profile in a new tab, focus an already active run, and communicate with that TikTok tab.
 - **`storage`**: Used to save your local configuration and a temporary active-job marker inside your browser, preventing overlapping runs even if Chrome suspends the extension worker. Stale markers automatically expire after 12 hours.
