@@ -14,7 +14,7 @@
   "list4": { "message": "Die genaue Trefferzahl vor dem Entfernen bestätigen" },
   "list5": { "message": "Das Ergebnis bei TikTok prüfen und den Bericht erstellen" },
   "note": {
-    "message": "Die Erweiterung scannt zuerst und bittet um Bestätigung, bevor etwas entfernt wird. Du kannst pausieren, stoppen und einen geprüften Bericht herunterladen."
+    "message": "Die Erweiterung prüft die erste Seite, bittet um Bestätigung und verarbeitet dann eine Seite nach der anderen. Du kannst pausieren, stoppen und einen geprüften Bericht herunterladen."
   },
   "tip": {
     "message": "Die Abschlussprüfung zeigt getrennt bestätigte Entfernungen, verbleibende Likes und Fehler."
@@ -98,5 +98,13 @@
   "statusBetweenScanPages": { "message": "Pause vor der nächsten Scan-Seite…" },
   "statusRateLimited": { "message": "TikTok hat zu viele Anfragen vorübergehend blockiert. Warte etwa eine Stunde und versuche es erneut." },
   "statusSessionRejected": { "message": "TikTok hat die Sitzung abgelehnt. Lade die Seite neu, melde dich bei Bedarf erneut an und versuche es noch einmal." },
-  "statusVerificationPage": { "message": "Überprüfung Seite $1$: $2$ Likes noch gelistet…", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } }
+  "statusVerificationPage": { "message": "Überprüfung Seite $1$: $2$ Likes noch gelistet…", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } },
+  "statusReadyPageByPage": {
+    "message": "Erste Seite: $1$ von $2$ Elementen stimmen überein. Bestätige die Verarbeitung Seite für Seite.",
+    "placeholders": {
+      "1": { "content": "$1" },
+      "2": { "content": "$2" }
+    }
+  },
+  "btnConfirmPageByPage": { "message": "Seitenweise Entfernung starten" }
 }

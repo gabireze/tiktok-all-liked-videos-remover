@@ -26,7 +26,7 @@ The extension performs the following actions, entirely in your browser:
 - On your TikTok profile, uses the same authenticated web APIs that the site uses to:
   - List your liked videos (e.g. `api/favorite/item_list/`).
   - Send requests to remove each selected like (e.g. `api/commit/item/digg/` with `type: '0'`). The removal request is run in the page context so it behaves like a normal site action.
-- Scans all liked-video pages before making changes, applies the optional keyword filter, and asks for explicit confirmation showing the exact number selected.
+- Loads the first liked-video page, asks for explicit confirmation, then filters and processes one page at a time. A full scan occurs before changes only when the user explicitly chooses read-only analysis mode.
 - Removes only the confirmed items, supports immediate pause/cancellation, and scans again to verify the resulting TikTok state.
 - Shows an in-page control panel and creates a local JSON or CSV report containing matched items, verified removals, remaining items, failures, and request diagnostics.
 

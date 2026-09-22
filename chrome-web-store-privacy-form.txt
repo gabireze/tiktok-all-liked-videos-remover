@@ -3,7 +3,7 @@
 --- Único propósito / Single purpose ---
 Descrição do único propósito (Description of single purpose):
 
-This extension has a single purpose: to help users remove liked videos from their TikTok account in bulk. It first scans every liked-video page without changing anything, applies the optional keyword filter, and shows the exact matched count. Removal begins only after explicit confirmation. The extension then scans TikTok again to verify which likes disappeared and which remain. The in-page panel supports pause, cancellation, and a local JSON or CSV report. No data is sent to any server other than TikTok; all logic runs in the user's browser using their existing session.
+This extension has a single purpose: to help users remove liked videos from their TikTok account in bulk. It loads the first liked-video page, applies the optional keyword filter, and asks for explicit confirmation. It then filters and removes one page at a time, so large libraries do not require a complete pre-scan. A full read-only scan runs only when the user explicitly selects analysis mode. The extension scans TikTok again after removal to verify which likes disappeared and which remain. The in-page panel supports pause, cancellation, and a local JSON or CSV report. No data is sent to any server other than TikTok; all logic runs in the user's browser using their existing session.
 
 
 --- Justificativa de scripting (Justification for scripting) ---

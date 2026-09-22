@@ -14,7 +14,7 @@
   "list4": { "message": "Konfirmasikan jumlah tepat sebelum penghapusan" },
   "list5": { "message": "Verifikasi hasil dengan TikTok dan buat laporan" },
   "note": {
-    "message": "Ekstensi memindai terlebih dahulu dan meminta konfirmasi sebelum menghapus apa pun. Anda dapat menjeda, menghentikan, dan mengunduh laporan terverifikasi."
+    "message": "Ekstensi memeriksa halaman pertama, meminta konfirmasi, lalu memproses satu halaman pada satu waktu. Anda dapat menjeda, menghentikan, dan mengunduh laporan terverifikasi."
   },
   "tip": {
     "message": "Verifikasi akhir memisahkan penghapusan terkonfirmasi, like yang tersisa, dan kegagalan."
@@ -98,5 +98,13 @@
   "statusBetweenScanPages": { "message": "Jeda sebelum halaman pemindaian berikutnya…" },
   "statusRateLimited": { "message": "TikTok memblokir terlalu banyak permintaan untuk sementara. Tunggu sekitar satu jam lalu coba lagi." },
   "statusSessionRejected": { "message": "TikTok menolak sesi. Muat ulang halaman, masuk kembali jika perlu, lalu coba lagi." },
-  "statusVerificationPage": { "message": "Verifikasi halaman $1$: $2$ like masih terdaftar…", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } }
+  "statusVerificationPage": { "message": "Verifikasi halaman $1$: $2$ like masih terdaftar…", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } },
+  "statusReadyPageByPage": {
+    "message": "Halaman pertama: $1$ dari $2$ item cocok. Konfirmasikan pemrosesan halaman demi halaman.",
+    "placeholders": {
+      "1": { "content": "$1" },
+      "2": { "content": "$2" }
+    }
+  },
+  "btnConfirmPageByPage": { "message": "Mulai penghapusan per halaman" }
 }

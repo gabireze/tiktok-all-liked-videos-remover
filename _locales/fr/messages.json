@@ -14,7 +14,7 @@
   "list4": { "message": "Confirmer le nombre exact avant toute suppression" },
   "list5": { "message": "Vérifier le résultat auprès de TikTok et créer le rapport" },
   "note": {
-    "message": "L’extension analyse d’abord et demande confirmation avant toute suppression. Vous pouvez mettre en pause, arrêter et télécharger un rapport vérifié."
+    "message": "L’extension vérifie la première page, demande confirmation, puis traite une page à la fois. Vous pouvez mettre en pause, arrêter et télécharger un rapport vérifié."
   },
   "tip": {
     "message": "La vérification finale distingue les suppressions confirmées, les likes restants et les échecs."
@@ -98,5 +98,13 @@
   "statusBetweenScanPages": { "message": "Pause avant la page d’analyse suivante…" },
   "statusRateLimited": { "message": "TikTok a temporairement bloqué les requêtes excessives. Attendez environ une heure et réessayez." },
   "statusSessionRejected": { "message": "TikTok a refusé la session. Rechargez la page, reconnectez-vous si nécessaire et réessayez." },
-  "statusVerificationPage": { "message": "Vérification page $1$ : $2$ likes encore listés…", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } }
+  "statusVerificationPage": { "message": "Vérification page $1$ : $2$ likes encore listés…", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } },
+  "statusReadyPageByPage": {
+    "message": "Première page : $1$ élément(s) sur $2$ correspondent. Confirmez le traitement page par page.",
+    "placeholders": {
+      "1": { "content": "$1" },
+      "2": { "content": "$2" }
+    }
+  },
+  "btnConfirmPageByPage": { "message": "Démarrer la suppression page par page" }
 }

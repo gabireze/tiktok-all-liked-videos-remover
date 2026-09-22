@@ -18,8 +18,9 @@ Remove all your liked videos on TikTok automatically with a single action.
 - Includes a read-only analysis mode to validate the session, filters, pagination, and matching count before removing anything
 - Distinguishes an empty likes list from session, rate-limit, HTTP, and invalid-response errors
 - In-page control panel on TikTok with:
-  - Full read-only scan before any change
-  - Explicit confirmation showing how many likes match the filter
+  - Page-by-page removal that starts after checking only the first page
+  - Optional full read-only analysis when you explicitly choose analysis mode
+  - Explicit confirmation before page-by-page processing starts
   - Live statistics for listed, matched, processed, verified, remaining, and failed items
   - Immediate pause, resume, and cancellation, including in-flight request cancellation
   - Final re-scan that verifies the result against TikTok
@@ -54,7 +55,7 @@ Remove all your liked videos on TikTok automatically with a single action.
    - Pause between pages and report format (JSON or CSV)
 4. Click **Scan and Remove Likes**.
 5. A TikTok tab will open automatically. The in-page panel will appear near the top-right:
-   - The extension opens the **Liked** tab and scans every page without changing anything.
+   - The extension opens the **Liked** tab and loads the first page.
    - Review the listed and matched counts, then explicitly confirm the removal.
    - You can pause, resume, or stop; closing the panel also cancels the active run.
    - After removal, the extension scans again and confirms which likes disappeared and which remain.
@@ -73,7 +74,8 @@ Remove all your liked videos on TikTok automatically with a single action.
 - When removing likes:
   - The complete list is captured before the first removal, so pagination cannot skip items as the list changes.
   - Only items that match your keyword filter (if enabled) are removed.
-  - A confirmation step shows the exact number selected before removal starts.
+  - A confirmation step shows the first-page match count before incremental removal starts.
+  - Each page is filtered and processed before the next page is loaded, avoiding a long full-library pre-scan.
   - Temporary network/server failures use limited exponential-backoff retries.
   - The panel distinguishes accepted requests from removals verified in the final scan.
 - Failures:

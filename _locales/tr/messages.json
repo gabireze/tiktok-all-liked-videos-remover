@@ -14,7 +14,7 @@
   "list4": { "message": "Kaldırmadan önce tam eşleşme sayısını onaylayın" },
   "list5": { "message": "Sonucu TikTok ile doğrulayın ve raporu oluşturun" },
   "note": {
-    "message": "Uzantı önce tarar ve herhangi bir şeyi kaldırmadan önce onay ister. Duraklatabilir, durdurabilir ve doğrulanmış bir rapor indirebilirsiniz."
+    "message": "Uzantı ilk sayfayı kontrol eder, onay ister ve ardından sayfaları tek tek işler. Duraklatabilir, durdurabilir ve doğrulanmış raporu indirebilirsiniz."
   },
   "tip": {
     "message": "Son doğrulama onaylanan kaldırmaları, kalan beğenileri ve hataları ayrı ayrı gösterir."
@@ -98,5 +98,13 @@
   "statusBetweenScanPages": { "message": "Sonraki tarama sayfasından önce bekleniyor…" },
   "statusRateLimited": { "message": "TikTok çok fazla isteği geçici olarak engelledi. Yaklaşık bir saat bekleyip yeniden deneyin." },
   "statusSessionRejected": { "message": "TikTok oturumu reddetti. Sayfayı yenileyin, gerekirse tekrar oturum açın ve yeniden deneyin." },
-  "statusVerificationPage": { "message": "Doğrulama $1$. sayfa: $2$ beğeni hâlâ listeleniyor…", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } }
+  "statusVerificationPage": { "message": "Doğrulama $1$. sayfa: $2$ beğeni hâlâ listeleniyor…", "placeholders": { "1": { "content": "$1" }, "2": { "content": "$2" } } },
+  "statusReadyPageByPage": {
+    "message": "İlk sayfa: $2$ öğeden $1$ tanesi eşleşiyor. Sayfa sayfa işlemeyi onaylayın.",
+    "placeholders": {
+      "1": { "content": "$1" },
+      "2": { "content": "$2" }
+    }
+  },
+  "btnConfirmPageByPage": { "message": "Sayfa sayfa kaldırmayı başlat" }
 }

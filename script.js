@@ -449,7 +449,9 @@
     if (confirmBtn) {
       confirmBtn.hidden = !state.awaitingConfirmation || !!state.finished || !!state.cancelled;
       confirmBtn.disabled = !state.awaitingConfirmation;
-      confirmBtn.textContent = substitutePlaceholders(t.btnConfirmRemoval, [state.matched || 0]) || `Remove ${state.matched || 0} likes`;
+      confirmBtn.textContent = state.pageByPageMode
+        ? (t.btnConfirmPageByPage || "Start page-by-page removal")
+        : (substitutePlaceholders(t.btnConfirmRemoval, [state.matched || 0]) || `Remove ${state.matched || 0} likes`);
     }
     if (stopBtn) {
       stopBtn.disabled = !!state.finished || !!state.cancelled;
@@ -552,6 +554,7 @@
     cancelled: false,
     finished: false,
     awaitingConfirmation: false,
+    pageByPageMode: false,
     startedAt: null,
     finishedAt: null,
   };
@@ -587,6 +590,7 @@
       cancelled: false,
       finished: false,
       awaitingConfirmation: false,
+      pageByPageMode: false,
       startedAt: new Date().toISOString(),
       finishedAt: null,
     });
@@ -707,83 +711,112 @@
       }
 
       const pagePauseMs = Math.max(0, (config.pagePauseSeconds ?? 5)) * 1000;
-      setStatus(t.statusListing || "Listing all likes before making changes…");
-      const initialScan = await collectAllLikedItems(secUid, {
+      if (config.dryRun) {
+        setStatus(t.statusListing || "Listing all likes for analysis…");
+        const analysis = await collectAllLikedItems(secUid, {
+          diagnostics: panelState.diagnostics.listing,
+          pagePauseMs,
+          onPage({ page, uniqueItems, total }) {
+            panelState.pages = page;
+            panelState.totalListed = total;
+            const pageMatches = uniqueItems.filter((item) => matchesKeywords(item.desc, keywordList)).length;
+            setStatus(substitutePlaceholders(t.statusPageScanning, [page, pageMatches, uniqueItems.length])
+              || `Page ${page}: ${pageMatches} of ${uniqueItems.length} items match the filter…`);
+          },
+        });
+        panelState.pages = analysis.pages;
+        panelState.totalListed = analysis.items.length;
+        panelState.reportScannedItems = analysis.items.filter((item) => matchesKeywords(item.desc, keywordList));
+        panelState.matched = panelState.reportScannedItems.length;
+        panelState.reportReady = true;
+        finish(analysis.items.length === 0
+          ? (t.statusNone || "No likes found.")
+          : (substitutePlaceholders(t.statusScanDone, [panelState.matched, analysis.items.length]) || `Analysis complete: ${panelState.matched} of ${analysis.items.length} likes match.`));
+        return;
+      }
+
+      panelState.pageByPageMode = true;
+      setStatus(t.statusListing || "Loading the first page of likes…");
+      let confirmed = false;
+      let consecutiveFailures = 0;
+      const candidateIds = new Set();
+      const pagedRun = await collectAllLikedItems(secUid, {
         diagnostics: panelState.diagnostics.listing,
         pagePauseMs,
-        onPage({ page, uniqueItems, total }) {
+        async onPage({ page, uniqueItems, total, result }) {
           panelState.pages = page;
           panelState.totalListed = total;
-          const pageMatches = uniqueItems.filter((item) => matchesKeywords(item.desc, keywordList)).length;
-          const message = substitutePlaceholders(t.statusPageScanning, [page, pageMatches, uniqueItems.length])
-            || `Page ${page}: ${pageMatches} of ${uniqueItems.length} items match the filter…`;
-          setStatus(message);
+          const pageCandidates = uniqueItems.filter((item) => matchesKeywords(item.desc, keywordList));
+          pageCandidates.forEach((item) => {
+            if (candidateIds.has(item.id)) return;
+            candidateIds.add(item.id);
+            panelState.reportScannedItems.push(item);
+          });
+          panelState.matched = panelState.reportScannedItems.length;
+          panelState.reportReady = true;
+          updatePanel(panel, panelState, t);
+
+          if (!confirmed && uniqueItems.length > 0) {
+            panelState.awaitingConfirmation = true;
+            setStatus(substitutePlaceholders(t.statusReadyPageByPage, [pageCandidates.length, uniqueItems.length])
+              || `First page: ${pageCandidates.length} of ${uniqueItems.length} items match. Confirm to process page by page.`);
+            const accepted = await new Promise((resolve) => { confirmationResolver = resolve; });
+            if (!accepted || panelState.cancelled) {
+              const cancelled = new Error("Cancelled");
+              cancelled.code = "CANCELLED";
+              throw cancelled;
+            }
+            confirmed = true;
+            updatePanel(panel, panelState, t);
+          }
+
+          for (let index = 0; index < pageCandidates.length; index++) {
+            const item = pageCandidates[index];
+            if (!(await waitUntilRunnable())) {
+              const cancelled = new Error("Cancelled");
+              cancelled.code = "CANCELLED";
+              throw cancelled;
+            }
+            setStatus(`Page ${page}: ` + (substitutePlaceholders(t.statusRemovingProgress, [index + 1, pageCandidates.length]) || `Removing ${index + 1} of ${pageCandidates.length}…`));
+            try {
+              const removalResult = await removeLikeWithRetry(item);
+              panelState.diagnostics.removal.push({ id: item.id, page, success: true, httpStatus: removalResult.httpStatus || null, attempts: removalResult.attempts });
+              panelState.reportItems.push(item);
+              consecutiveFailures = 0;
+            } catch (error) {
+              if (error.code === "CANCELLED") throw error;
+              panelState.diagnostics.removal.push({ id: item.id, page, success: false, errorCode: error.code || "REMOVE_FAILED", httpStatus: error.httpStatus || null });
+              panelState.reportFailedItems.push(item);
+              consecutiveFailures++;
+              if (error.code === "RATE_LIMITED" || error.code === "SESSION_REJECTED") throw error;
+              if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+                const stopped = new Error("Too many consecutive failures");
+                stopped.code = "TOO_MANY_FAILURES";
+                throw stopped;
+              }
+            }
+            panelState.failed = panelState.reportFailedItems.length;
+            panelState.processed = panelState.reportItems.length + panelState.reportFailedItems.length;
+            updatePanel(panel, panelState, t);
+            if (index < pageCandidates.length - 1 && !(await cancellableSleep(randomDelayMs(config)))) {
+              const cancelled = new Error("Cancelled");
+              cancelled.code = "CANCELLED";
+              throw cancelled;
+            }
+          }
+          if (result.hasMore) setStatus(t.statusBetweenPages || "Loading the next page…");
         },
       });
 
-      panelState.pages = initialScan.pages;
-      panelState.totalListed = initialScan.items.length;
-      const candidates = initialScan.items.filter((item) => matchesKeywords(item.desc, keywordList));
-      panelState.reportScannedItems = candidates;
-      panelState.matched = candidates.length;
-      panelState.reportReady = true;
-      updatePanel(panel, panelState, t);
-
-      if (initialScan.items.length === 0) {
+      panelState.pages = pagedRun.pages;
+      panelState.totalListed = pagedRun.items.length;
+      const candidates = panelState.reportScannedItems;
+      if (pagedRun.items.length === 0) {
         finish(t.statusNone || "No likes found.");
         return;
       }
       if (candidates.length === 0) {
         finish(t.statusNoMatches || "Likes were found, but none match the selected filter.");
-        return;
-      }
-      if (config.dryRun) {
-        finish(substitutePlaceholders(t.statusScanDone, [candidates.length, initialScan.items.length]) || `Analysis complete: ${candidates.length} of ${initialScan.items.length} likes match.`);
-        return;
-      }
-
-      panelState.awaitingConfirmation = true;
-      setStatus(substitutePlaceholders(t.statusReadyToRemove, [candidates.length, initialScan.items.length])
-        || `${candidates.length} of ${initialScan.items.length} likes match. Confirm to start removing.`);
-      const confirmed = await new Promise((resolve) => { confirmationResolver = resolve; });
-      if (!confirmed || panelState.cancelled) return;
-      updatePanel(panel, panelState, t);
-
-      let consecutiveFailures = 0;
-      let fatalError = null;
-      for (let index = 0; index < candidates.length; index++) {
-        const item = candidates[index];
-        if (!(await waitUntilRunnable())) break;
-        setStatus(substitutePlaceholders(t.statusRemovingProgress, [index + 1, candidates.length]) || `Removing ${index + 1} of ${candidates.length}…`);
-        try {
-          const removalResult = await removeLikeWithRetry(item);
-          panelState.diagnostics.removal.push({ id: item.id, success: true, httpStatus: removalResult.httpStatus || null, attempts: removalResult.attempts });
-          panelState.reportItems.push(item);
-          panelState.processed = panelState.reportItems.length + panelState.reportFailedItems.length;
-          consecutiveFailures = 0;
-        } catch (error) {
-          if (error.code === "CANCELLED") break;
-          panelState.diagnostics.removal.push({ id: item.id, success: false, errorCode: error.code || "REMOVE_FAILED", httpStatus: error.httpStatus || null });
-          panelState.reportFailedItems.push(item);
-          panelState.failed = panelState.reportFailedItems.length;
-          panelState.processed = panelState.reportItems.length + panelState.reportFailedItems.length;
-          consecutiveFailures++;
-          if (error.code === "RATE_LIMITED" || error.code === "SESSION_REJECTED" || consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
-            fatalError = error;
-            break;
-          }
-        }
-        updatePanel(panel, panelState, t);
-        if (index < candidates.length - 1 && !(await cancellableSleep(randomDelayMs(config)))) break;
-      }
-
-      if (panelState.cancelled) return;
-      if (fatalError && fatalError.code === "RATE_LIMITED") {
-        finish(t.statusRateLimited || "TikTok temporarily limited requests. Wait before trying again.");
-        return;
-      }
-      if (fatalError && fatalError.code === "SESSION_REJECTED") {
-        finish(t.statusSessionRejected || "TikTok rejected the session. Reload the page and try again.");
         return;
       }
 
@@ -820,6 +853,12 @@
     } catch (err) {
       if (err && err.code === "CANCELLED") {
         if (!panelState.finished) stopRun();
+      } else if (err && err.code === "RATE_LIMITED") {
+        finish(t.statusRateLimited || "TikTok temporarily limited requests. Wait before trying again.");
+      } else if (err && err.code === "SESSION_REJECTED") {
+        finish(t.statusSessionRejected || "TikTok rejected the session. Reload the page and try again.");
+      } else if (err && err.code === "TOO_MANY_FAILURES") {
+        finish(substitutePlaceholders(t.statusStoppedFailures, [MAX_CONSECUTIVE_FAILURES]) || `Stopped after ${MAX_CONSECUTIVE_FAILURES} consecutive failures.`);
       } else {
         console.error("TikTok Likes Remover:", err);
         const detail = [err && err.code, err && err.httpStatus ? `HTTP ${err.httpStatus}` : ""].filter(Boolean).join(" · ");
